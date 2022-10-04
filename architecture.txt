@@ -1,0 +1,9 @@
+1. move board editor to multiplayer
+2. keep board editor
+
+DO THIS FIRST :
+Architecture:
+Process all moves is Client side -> change app.js - server
+Emit and receive only moves and messages
+
+Boom move -> DONT EMIT MOVE EVENT UNTIL CHOOSEN BY Current Side to play
