@@ -102,6 +102,7 @@ io.on('connection', (socket) => {
 		// console.log(move)		
 		game.remove(target)
 		let eg = game.fen()
+		let isCheck = null
 		if (game.turn() === 'w') {
 			let myArray = eg.split(" ");
 			myArray[1] = "b";
@@ -119,14 +120,37 @@ io.on('connection', (socket) => {
 	})
 
 	//For catching dropped event
-	socket.on('Dropped', ({ source, target, room }) => {
+	socket.on('pawnPromoDropped', ({ source, target, pieceType, room }) => {
 		var game = gameData[socket.id]
 		// console.log(move)
+		let isCheck = null
+		game.remove(source)
+		game.put(pieceType, target)
+		let eg = game.fen()
+		if (game.turn() === 'w') {
+			let myArray = eg.split(" ");
+			myArray[1] = "b";
+			isCheck = myArray.join(" ");
+		}
+		if (game.turn() === 'b') {
+			let myArray = eg.split(" ");
+			myArray[1] = "w";
+			isCheck = myArray.join(" ");
+		}
+		game.load(isCheck)
+		io.to(room).emit('Dragging', socket.id)
+		io.to(room).emit('DisplayBoard', game.fen(), { source, target }, undefined)
+		updateStatus(game, room)
+	})
+	socket.on('Dropped', ({ source, target, room }) => {
+		var game = gameData[socket.id]
+
 
 		let sourcePiece = game.get(source)
 		game.remove(source)
 		game.put({ type: sourcePiece.type, color: sourcePiece.color }, target)
 		let eg = game.fen()
+		let isCheck = null
 		if (game.turn() === 'w') {
 			let myArray = eg.split(" ");
 			myArray[1] = "b";

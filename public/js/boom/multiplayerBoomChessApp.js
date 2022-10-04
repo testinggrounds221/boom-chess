@@ -37,6 +37,24 @@ let configEditor = {
 	onMoveEnd: onMoveEnd,
 }
 editorBoard = Chessboard('boardEditor', configEditor);
+$("#promote-to").selectable({
+	stop: function () {
+		$(".ui-selected", this).each(function () {
+			var selectable = $("#promote-to li");
+			var index = selectable.index(this);
+			if (index > -1) {
+				var promote_to_html = selectable[index].innerHTML;
+				var span = $("<div>" + promote_to_html + "</div>").find("span");
+				promote_to = span[0].innerHTML;
+			}
+			promotion_dialog.dialog("close");
+			$(".ui-selectee").removeClass("ui-selected");
+			editorBoard.position(editorGame.fen(), false);
+			// showSideToMove();
+			promoting = false;
+		});
+	},
+});
 
 $(function () {
 	$("#dialog-4").dialog({
@@ -175,6 +193,8 @@ function onDropEditor(source, target) {
 					close: () => {
 						move.promotion = promote_to
 						editorGame.move(move)
+						let pt = { type: move.promotion, color: move.color }
+						handlePawnPromo(source, target, pt)
 					},
 					closeOnEscape: false,
 					dialogClass: "noTitleStuff",
@@ -225,6 +245,13 @@ function handleBoomMove(source, target) {
 	var room = formEl[1].value;
 	myAudioEl.play();
 	socket.emit('boomDropped', { source, target, room })
+}
+
+function handlePawnPromo(source, target, pieceType) {
+	pause_clock();
+	var room = formEl[1].value;
+	myAudioEl.play();
+	socket.emit('pawnPromoDropped', { source, target, pieceType, room })
 }
 
 function onSnapEndEditor(params) {
@@ -597,4 +624,9 @@ function moveBack(move) {
 
 }
 
-window.changeSquareColorAfterMove = changeSquareColorAfterMove
+function getImgSrc(piece) {
+	return piece_theme.replace(
+		"{piece}",
+		editorGame.turn() + piece.toLocaleUpperCase()
+	);
+}

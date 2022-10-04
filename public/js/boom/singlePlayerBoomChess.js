@@ -16,6 +16,18 @@ promoting = false;
 piece_theme = "img/chesspieces/wikipedia/{piece}.png";
 var squareToHighlight = null
 var squareClass = 'square-55d63'
+document.querySelector('#boardEditorGame').style.display = null;
+// document.querySelector('#clearEditor').style.display = "none";
+// document.querySelector('#startEditor').style.display = "none";
+configEditor = {
+	draggable: true,
+	position: 'start',
+	onSnapEnd: onSnapEndEditor,
+	onDragStart: onDragStartEditor,
+	onDrop: onDropEditor,
+	onMoveEnd: onMoveEnd,
+}
+editorBoard = Chessboard('boardEditor', configEditor);
 
 let waitForBoom = false
 $(function () {
@@ -27,11 +39,13 @@ $(function () {
 				moveBack($(this).data('move'))
 				$(this).dialog("close");
 				waitForBoom = false
+				// makeRandomMoveEditor()
 			},
 			No: function () {
 				$(this).dialog("close");
 				waitForBoom = false
 				alertCheckMate()
+				// makeRandomMoveEditor()
 			},
 		},
 	});
@@ -40,75 +54,6 @@ $(function () {
 		$("#dialog-4").dialog("open");
 	});
 });
-
-startPlayEl.addEventListener('click', (e) => {
-	e.preventDefault();
-	document.getElementById('trn').innerHTML = editorGame.turn();
-	// clearEditorEl.style.display = null; // changed Here
-	if ((editorBoard.fen().match(/k/g) || []).length < 1 || (editorBoard.fen().match(/K/g) || []).length < 1) {
-		alert("There must be atleast 2 Kings of both color in the board")
-		return
-	}
-	console.log(editorBoard.fen())
-	startPlayEl.style.display = "none";
-	arrangeEl.style.display = null;
-	let clr = 'w'
-	if (confirm("Is it White's turn ?")) {
-		clr = "w";
-	} else {
-		clr = "b";
-	}
-	let currentFen = editorBoard.fen() + ' ' + clr + ' KQkq - 2 3';
-	editorGame = new Chess(currentFen)
-	configEditor = {
-		draggable: true,
-		position: editorBoard.fen(),
-		onSnapEnd: onSnapEndEditor,
-		onDragStart: onDragStartEditor,
-		onDrop: onDropEditor,
-		onMoveEnd: onMoveEnd,
-	}
-	editorBoard = Chessboard('boardEditor', configEditor);
-	play = true;
-})
-
-arrangeEl.addEventListener('click', (e) => {
-	e.preventDefault();
-	play = false;
-	// Get current Fen string and set config
-	// document.querySelector('#clearEditor').style.display = null;
-	startPlayEl.style.display = null;
-	arrangeEl.style.display = "none";
-	clearEditorEl.style.display = null;
-	//let currentFen = editorBoard.fen();
-	let currentFen = editorGame.fen();
-	configEditor = {
-		draggable: true,
-		dropOffBoard: 'trash',
-		position: currentFen,
-		sparePieces: true
-	}
-	editorBoard = Chessboard('boardEditor', configEditor);
-	$('#clearEditor').on('click', editorBoard.clear)
-})
-
-boardEditorEl.addEventListener('click', (e) => {
-	e.preventDefault();
-	document.getElementById('gameMode').style.display = "none";
-	document.querySelector('#boardEditorGame').style.display = null;
-	// document.querySelector('#clearEditor').style.display = "none";
-	// document.querySelector('#startEditor').style.display = "none";
-	configEditor = {
-		draggable: true,
-		position: 'start',
-		onSnapEnd: onSnapEndEditor,
-		onDragStart: onDragStartEditor,
-		onDrop: onDropEditor,
-		onMoveEnd: onMoveEnd,
-	}
-	editorBoard = Chessboard('boardEditor', configEditor);
-})
-
 var validMoves = []
 // Board Change Functions
 function onSnapEndEditor(params) {
@@ -183,6 +128,7 @@ function onDropEditor(source, target) {
 	if (move != null && 'captured' in move && move.piece != 'p') {
 		waitForBoom = true
 		$("#dialog-4").data('move', move).dialog("open");
+
 	}
 	editorGame.undo(); //move is ok, now we can go ahead and check for promotion
 	// is it a promotion?
@@ -239,7 +185,10 @@ function onDropEditor(source, target) {
 		// window.setTimeout(makeRandomMoveEditor, 250)
 
 	}
-	if (!waitForBoom) alertCheckMate()
+	if (!waitForBoom) {
+		alertCheckMate()
+		makeRandomMoveEditor()
+	}
 }
 
 function alertCheckMate() {
@@ -257,6 +206,12 @@ function onMoveEnd() {
 		.addClass('highlight-black')
 }
 
+var onDialogClose = function () {
+	move_cfg.promotion = promote_to;
+	var move = editorGame.move(move_cfg);
+	// illegal move
+	if (move === null) return "snapback";
+};
 // Action/Moving Functions
 $("#promote-to").selectable({
 	stop: function () {
@@ -435,6 +390,7 @@ function isCheckForTurnAftermove(fen, source, target) {
 
 // Misc Functions
 function makeRandomMoveEditor() {
+	return
 	var possibleMoves = editorGame.moves()
 	// editorGame over
 	if (possibleMoves.length === 0) {
@@ -444,7 +400,8 @@ function makeRandomMoveEditor() {
 	editorGame.move(possibleMoves[randomIdx]);
 	myAudioEl.play();
 	editorTurnt = 1 - editorTurnt;
-	editorBoard.position(editorGame.fen());
+	changeSquareColorAfterMove(possibleMoves[randomIdx].source, possibleMoves[randomIdx].target)
+	// editorBoard.position(editorGame.fen());
 }
 
 function getImgSrc(piece) {
@@ -453,73 +410,6 @@ function getImgSrc(piece) {
 		editorGame.turn() + piece.toLocaleUpperCase()
 	);
 }
-
-// function noOfKingNeighbours(source) {
-// 	var flag = 0;
-// 	let cust = source;
-// 	let a = cust.charCodeAt(0);
-// 	let b = cust.charAt(1);
-// 	let currentFen = editorGame.fen()
-// 	validMoves = validMovesKing(a, b)
-// 	for (let i = 0; i < validMoves.length - 1; i++) {
-// 		if (editorGame.get(validMoves[i]) != null) {
-// 			if (editorGame.get(validMoves[i]).color != editorGame.turn()) {
-// 				if (isCheckAfterRemovePiece(currentFen, validMoves[i])) {
-// 					let index = validMoves.indexOf(validMoves[i])
-// 					validMoves.splice(index, 1)
-// 				} else {
-// 					flag++
-// 				}
-// 			}
-// 		}
-// 	}
-
-// 	return flag;
-// }
-
-// function sampleCheckMate(flag, piece) {
-// 	if (flag > 0 && piece.charAt(0) == editorGame.turn()) {
-// 		if (piece === 'bK' || piece == 'wK') {
-// 			console.log("King")
-// 			flag = 0;
-// 			return 1
-// 		} else {
-// 			console.log('I am Here')
-// 			flag = 0;
-// 			return 0
-// 		}
-// 	} else {
-// 		if (piece.charAt(1) == 'K' && piece.charAt(0) == editorGame.turn()) {
-// 			if (editorGame.turn() === 'w') {
-// 				alert('Black Win!!')
-// 				editorGame.load(currentFen);
-// 				return
-// 			} else {
-// 				alert('White Won!!')
-// 				editorGame.load(currentFen);
-// 				return
-// 			}
-// 		} else if (piece.charAt(1) != 'K') {
-// 			return 0;
-// 		} else {
-// 			console.log("Helloo")
-// 		}
-// 	}
-// }
-// function validMovesKing(a, b) {
-// 	let alpha = a;
-// 	let num = parseInt(b);
-// 	var movesKing = []
-// 	movesKing[0] = String.fromCharCode((alpha)).concat(num - 1);
-// 	movesKing[1] = String.fromCharCode((alpha - 1)).concat(num - 1);
-// 	movesKing[2] = String.fromCharCode((alpha + 1)).concat(num - 1);
-// 	movesKing[3] = String.fromCharCode((alpha)).concat(num + 1);
-// 	movesKing[4] = String.fromCharCode((alpha - 1)).concat(num + 1);
-// 	movesKing[5] = String.fromCharCode((alpha + 1)).concat(num + 1);
-// 	movesKing[6] = String.fromCharCode((alpha - 1)).concat(num);
-// 	movesKing[7] = String.fromCharCode((alpha + 1)).concat(num);
-// 	return movesKing
-// }
 
 
 
