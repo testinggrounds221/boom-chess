@@ -47,7 +47,7 @@ $(function () {
 				moveBack($(this).data('move'))
 				$(this).dialog("close");
 				waitForBoom = false
-				handleBoomMove($(this).data('move').to)
+				handleBoomMove($(this).data('move').from, $(this).data('move').to)
 			},
 			No: function () {
 				$(this).dialog("close");
@@ -141,7 +141,7 @@ function onDropEditor(source, target) {
 		}
 		return;
 	} else {
-		changeSquareColorAfterMove(source, target)
+		// changeSquareColorAfterMove(source, target)
 	}
 	if (move != null && 'captured' in move && move.piece != 'p') {
 		waitForBoom = true
@@ -209,8 +209,8 @@ function onDropEditor(source, target) {
 }
 
 function onMoveEnd() {
-	// boardJqry.find('.square-' + squareToHighlight)
-	// 	.addClass('highlight-black')
+	boardJqry.find('.square-' + squareToHighlight)
+		.addClass('highlight-black')
 }
 
 function handleValidMove(source, target) {
@@ -220,11 +220,11 @@ function handleValidMove(source, target) {
 	socket.emit('Dropped', { source, target, room })
 }
 
-function handleBoomMove(target) {
+function handleBoomMove(source, target) {
 	pause_clock();
 	var room = formEl[1].value;
 	myAudioEl.play();
-	socket.emit('boomDropped', { target, room })
+	socket.emit('boomDropped', { source, target, room })
 }
 
 function onSnapEndEditor(params) {
@@ -243,7 +243,7 @@ socket.on('printing', (fen) => {
 })
 
 //Catch Display event
-socket.on('DisplayBoard', (fenString, userId) => {
+socket.on('DisplayBoard', (fenString, mvSq, userId) => {
 	// console.log(fenString)
 	//This is to be done initially only
 	if (userId != undefined) {
@@ -263,10 +263,13 @@ socket.on('DisplayBoard', (fenString, userId) => {
 		document.getElementById('statusPGN').style.display = null
 	}
 
-
+	console.log(mvSq)
 	configEditor.position = fenString
 	console.log(`Is received Fen String Valid ? ${editorGame.load(fenString)}`)
 	editorBoard = ChessBoard('boardEditor', configEditor)
+	changeSquareColorAfterMove(mvSq.source, mvSq.target)
+
+
 	// console.log(turnt)
 	// document.getElementById('pgn').textContent = pgn
 })
@@ -280,24 +283,7 @@ socket.on('Dragging', id => {
 	}
 })
 
-// socket.on('askMoveBack', (color, move, room, currFen) => {
-// 	// console.log("IM", configEditor.orientation[0])
 
-
-// 	if (color == configEditor.orientation[0]) {
-// 		if (confirm("Do you want to move back ?")) {
-// 			socket.emit('replyFromMoveBack', true, move, room, currFen)
-
-// 		} else {
-// 			socket.emit('replyFromMoveBack', false, move, room, currFen) // here currFen not used
-// 		}
-// 	}
-// 	//This is to be done initially only
-// })
-// TODO:not needed
-// socket.on('cantMoveBack', () => {
-// 	alert("Cant Move back as it leads to Check")
-// })
 
 //To Update Status Element
 socket.on('updateStatus', (turn) => {
@@ -516,7 +502,7 @@ function moveIllegal(source, target) {
 	console.log(editorGame.fen())
 	editorBoard.position(isCheck, false);
 
-	changeSquareColorAfterMove(source, target)
+	// changeSquareColorAfterMove(source, target)
 }
 
 function changeSquareColorAfterMove(source, target) {
@@ -610,3 +596,5 @@ function moveBack(move) {
 	}
 
 }
+
+window.changeSquareColorAfterMove = changeSquareColorAfterMove

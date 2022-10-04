@@ -92,12 +92,12 @@ io.on('connection', (socket) => {
 			}
 			//For giving turns one by one
 			io.to(room).emit('Dragging', socket.id)
-			io.to(room).emit('DisplayBoard', game.fen(), socket.id)
+			io.to(room).emit('DisplayBoard', game.fen(), { source: null, target: null }, socket.id)
 			updateStatus(game, room)
 		}
 	})
 
-	socket.on('boomDropped', ({ target, room }) => {
+	socket.on('boomDropped', ({ source, target, room }) => {
 		var game = gameData[socket.id]
 		// console.log(move)		
 		game.remove(target)
@@ -114,24 +114,8 @@ io.on('connection', (socket) => {
 		}
 		game.load(isCheck)
 		io.to(room).emit('Dragging', socket.id)
-		io.to(room).emit('DisplayBoard', game.fen(), undefined)
+		io.to(room).emit('DisplayBoard', game.fen(), { source, target }, undefined)
 		updateStatus(game, room)
-		// If correct move, then toggle the turns
-		// if (move != null && 'captured' in move && move.piece != 'p') {
-		// 	console.log("Do you want to go back to ", source, " ?")
-		// 	io.to(room).emit('DisplayBoard', game.fen(), undefined)
-		// 	io.to(room).emit('askMoveBack', move.color, move, room, currentFen)
-
-		// } else
-		// // TODO:Accept and send only fen ?
-		// //  Accept every move that comes in here as valid move
-		// {
-		// 	if (move != null) {
-		// 		io.to(room).emit('Dragging', socket.id)
-		// 	}
-		// 	io.to(room).emit('DisplayBoard', game.fen(), undefined)
-		// 	updateStatus(game, room)
-		// }
 	})
 
 	//For catching dropped event
@@ -155,55 +139,9 @@ io.on('connection', (socket) => {
 		}
 		game.load(isCheck)
 		io.to(room).emit('Dragging', socket.id)
-		io.to(room).emit('DisplayBoard', game.fen(), undefined)
+		io.to(room).emit('DisplayBoard', game.fen(), { source, target }, undefined)
 		updateStatus(game, room)
 	})
-
-	socket.on('replyFromMoveBack', (moveBack, move, room, currFen) => {
-		var game = gameData[socket.id]
-		io.to(room).emit('Dragging', socket.id)
-		if (moveBack) {
-			console.log('Move Me to my old position')
-			game.load(currFen)
-			game.put({ type: move.piece, color: move.color }, move.from)
-			game.remove(move.to)
-
-
-			console.log(game.in_check())
-			if (game.in_check()) {
-				// game.turn() !== move.color
-				console.log(game.in_check())
-				console.log(game.turn())
-				console.log(move.color)
-				io.to(room).emit('cantMoveBack', socket.id)
-				game.load(currFen)
-			}
-		}
-		io.to(room).emit('DisplayBoard', game.fen(), undefined)
-		updateStatus(game, room)
-	})
-
-	// socket.on('modifyBoard', ({ source, target, room }) => {
-	// 	var game = gameData[socket.id]
-	// 	var move = game.move({
-	// 		from: source,
-	// 		to: target,
-	// 		promotion: 'q' // NOTE: always promote to a queen for example simplicity
-	// 	})
-	// 	// If correct move, then toggle the turns
-	// 	if (move != null && 'captured' in move) {
-	// 		console.log("Do you want to go back to ", source, " ?")
-	// 		io.to(room).emit('askMoveBack', socket.id, move.color, source)
-	// 	} else {
-	// 		if (move != null) {
-	// 			io.to(room).emit('Dragging', socket.id)
-	// 		}
-	// 	}
-	// 	io.to(room).emit('DisplayBoard', game.fen(), undefined, game.pgn())
-	// 	updateStatus(game, room)
-
-	// 	// io.to(room).emit('printing', game.fen())
-	// })
 
 	//Catching message event
 	socket.on('sendMessage', ({ user, room, message }) => {
