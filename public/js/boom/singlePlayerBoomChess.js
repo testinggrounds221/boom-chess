@@ -1,8 +1,6 @@
-const boardEditorEl = document.getElementById('bd');
-const startPlayEl = document.getElementById('startPlay');
-const arrangeEl = document.getElementById('arrange');
+const whiteColor = document.getElementById('white');
+const blackColor = document.getElementById('black');
 const myAudioEl = document.getElementById('myAudio');
-const clearEditorEl = document.getElementById('clearEditor');
 // const startEditor = document.getElementById('startEditor');
 var editorTurnt = 0;
 let play = true;
@@ -10,24 +8,13 @@ var configEditor = {};
 var editorBoard = null;
 var boardJqry = $('#boardEditor')
 var editorGame = new Chess()
+// console.log(editorGame.load('rnb3nr/ppp1P1pp/2k5/8/8/8/PPPP1PPP/RNBQKBNR w - - 0 1'))
 var fen, editorGame, piece_theme, promote_to, promoting, promotion_dialog;
 promotion_dialog = $("#promotion-dialog");
 promoting = false;
 piece_theme = "img/chesspieces/wikipedia/{piece}.png";
 var squareToHighlight = null
 var squareClass = 'square-55d63'
-document.querySelector('#boardEditorGame').style.display = null;
-// document.querySelector('#clearEditor').style.display = "none";
-// document.querySelector('#startEditor').style.display = "none";
-configEditor = {
-	draggable: true,
-	position: 'start',
-	onSnapEnd: onSnapEndEditor,
-	onDragStart: onDragStartEditor,
-	onDrop: onDropEditor,
-	onMoveEnd: onMoveEnd,
-}
-editorBoard = Chessboard('boardEditor', configEditor);
 
 let waitForBoom = false
 $(function () {
@@ -39,13 +26,14 @@ $(function () {
 				moveBack($(this).data('move'))
 				$(this).dialog("close");
 				waitForBoom = false
-				// makeRandomMoveEditor()
+				makeRandomMoveEditor()
 			},
 			No: function () {
 				$(this).dialog("close");
 				waitForBoom = false
 				alertCheckMate()
-				// makeRandomMoveEditor()
+				makeRandomMoveEditor()
+
 			},
 		},
 	});
@@ -54,6 +42,42 @@ $(function () {
 		$("#dialog-4").dialog("open");
 	});
 });
+
+
+whiteColor.addEventListener('click', (e) => {
+	e.preventDefault();
+	document.getElementById('gameMode').style.display = "none";
+	document.querySelector('#boardEditorGame').style.display = null;
+
+	configEditor = {
+		draggable: true,
+		position: 'start',
+		onSnapEnd: onSnapEndEditor,
+		onDragStart: onDragStartEditor,
+		onDrop: onDropEditor,
+		onMoveEnd: onMoveEnd,
+	}
+	editorBoard = Chessboard('boardEditor', configEditor);
+})
+
+blackColor.addEventListener('click', (e) => {
+	e.preventDefault();
+	document.getElementById('gameMode').style.display = "none";
+	document.querySelector('#boardEditorGame').style.display = null;
+
+	configEditor = {
+		draggable: true,
+		position: 'start',
+		orientation: 'black',
+		onSnapEnd: onSnapEndEditor,
+		onDragStart: onDragStartEditor,
+		onDrop: onDropEditor,
+		onMoveEnd: onMoveEnd,
+	}
+	editorBoard = Chessboard('boardEditor', configEditor);
+	makeRandomMoveEditor()
+})
+
 var validMoves = []
 // Board Change Functions
 function onSnapEndEditor(params) {
@@ -128,7 +152,6 @@ function onDropEditor(source, target) {
 	if (move != null && 'captured' in move && move.piece != 'p') {
 		waitForBoom = true
 		$("#dialog-4").data('move', move).dialog("open");
-
 	}
 	editorGame.undo(); //move is ok, now we can go ahead and check for promotion
 	// is it a promotion?
@@ -158,6 +181,7 @@ function onDropEditor(source, target) {
 					close: () => {
 						move.promotion = promote_to
 						editorGame.move(move)
+						makeRandomMoveEditor()
 					},
 					closeOnEscape: false,
 					dialogClass: "noTitleStuff",
@@ -206,12 +230,6 @@ function onMoveEnd() {
 		.addClass('highlight-black')
 }
 
-var onDialogClose = function () {
-	move_cfg.promotion = promote_to;
-	var move = editorGame.move(move_cfg);
-	// illegal move
-	if (move === null) return "snapback";
-};
 // Action/Moving Functions
 $("#promote-to").selectable({
 	stop: function () {
@@ -388,20 +406,24 @@ function isCheckForTurnAftermove(fen, source, target) {
 	return isCheckGame.in_check()
 }
 
-// Misc Functions
 function makeRandomMoveEditor() {
-	return
+	setTimeout(makeRandomMove, 1000);
+}
+
+// Misc Functions
+function makeRandomMove() {
 	var possibleMoves = editorGame.moves()
 	// editorGame over
 	if (possibleMoves.length === 0) {
 		return;
 	}
 	var randomIdx = Math.floor(Math.random() * possibleMoves.length)
-	editorGame.move(possibleMoves[randomIdx]);
+	let move = editorGame.move(possibleMoves[randomIdx]);
 	myAudioEl.play();
 	editorTurnt = 1 - editorTurnt;
-	changeSquareColorAfterMove(possibleMoves[randomIdx].source, possibleMoves[randomIdx].target)
-	// editorBoard.position(editorGame.fen());
+	editorBoard.position(editorGame.fen());
+	setTimeout(changeSquareColorAfterMove(move.from, move.to), 500)
+
 }
 
 function getImgSrc(piece) {
@@ -410,8 +432,3 @@ function getImgSrc(piece) {
 		editorGame.turn() + piece.toLocaleUpperCase()
 	);
 }
-
-
-
-window.bd = boardJqry
-window.editorGame = editorGame

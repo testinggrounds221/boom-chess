@@ -67,8 +67,21 @@
     </div>
 
     <div>
+      <div id="gameMode">
+        <h1 style="text-align: center; margin: 10px; font-size: 35px">
+          Game Mode
+        </h1>
+        <div style="text-align: center">
+          <button class="game ui black button" id="white">White</button>
+        </div>
+
+        <div style="text-align: center; margin-top: 10px">
+          <button class="game ui black button" id="black">Black</button>
+        </div>
+      </div>
+      <!-- /Input Form -->
       <div>
-        <div id="boardEditorGame" style="display: none">
+        <div id="boardEditorGame">
           <div
             id="boardEditor"
             style="
@@ -106,7 +119,6 @@
       </div>
     </div>
     <div id="trn" style="font-size: x-large; display: none">TURN</div>
-
     <!-- <script
       src="https://code.jquery.com/jquery-3.1.1.min.js"
       integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
@@ -127,6 +139,7 @@
       integrity="sha384-s3XgLpvmHyscVpijnseAmye819Ee3yaGa8NxstkJVyA6nuDFjt59u1QvuEl/mecz"
       crossorigin="anonymous"
     ></script>
+
     <script src="./js/boom/singlePlayerBoomChess.js" type="module"></script>
   </body>
 </html>
