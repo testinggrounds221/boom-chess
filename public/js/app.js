@@ -96,19 +96,19 @@ function onSnapEnd2() {
 	board.position(game.fen())
 }
 
-singlePlayerEl.addEventListener('click', (e) => {
-	e.preventDefault();
-	document.getElementById('gameMode').style.display = "none";
-	document.querySelector('#chessGame').style.display = null;
-	config = {
-		draggable: true,
-		position: 'start',
-		onDragStart: onDragStart2,
-		onDrop: onDrop2,
-		onSnapEnd: onSnapEnd2
-	}
-	board = Chessboard('myBoard', config);
-})
+// singlePlayerEl.addEventListener('click', (e) => {
+// 	e.preventDefault();
+// 	document.getElementById('gameMode').style.display = "none";
+// 	document.querySelector('#chessGame').style.display = null;
+// 	config = {
+// 		draggable: true,
+// 		position: 'start',
+// 		onDragStart: onDragStart2,
+// 		onDrop: onDrop2,
+// 		onSnapEnd: onSnapEnd2
+// 	}
+// 	board = Chessboard('myBoard', config);
+// })
 
 //Connection will be established after webpage is refreshed
 const socket = io()
@@ -319,20 +319,20 @@ joinButtonEl.addEventListener('click', (e) => {
 	}
 })
 
-multiPlayerEl.addEventListener('click', (e) => {
-	e.preventDefault();
-	document.getElementById('joinFormDiv').style.display = "block";
-	document.getElementById('gameMode').style.display = "none";
-	//Server will create a game and clients will play it
-	//Clients just have to diaplay the game
-	var board = ChessBoard('myBoard')
-	config = {
-		draggable: false,   //Initially
-		position: 'start',
-		onDrop: onDrop,
-		orientation: 'white'
-	}
-})
+// multiPlayerEl.addEventListener('click', (e) => {
+// 	e.preventDefault();
+// 	document.getElementById('joinFormDiv').style.display = "block";
+// 	document.getElementById('gameMode').style.display = "none";
+// 	//Server will create a game and clients will play it
+// 	//Clients just have to diaplay the game
+// 	var board = ChessBoard('myBoard')
+// 	config = {
+// 		draggable: false,   //Initially
+// 		position: 'start',
+// 		onDrop: onDrop,
+// 		orientation: 'white'
+// 	}
+// })
 
 function time_remaining(endtime) {
 	var t = Date.parse(endtime) - Date.parse(new Date());
