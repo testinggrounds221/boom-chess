@@ -164,7 +164,22 @@ function onDropEditor(source, target) {
 	}
 	if (move != null && 'captured' in move && move.piece != 'p') {
 		waitForBoom = true
-		$("#dialog-4").data('move', move).dialog("open");
+		editorGame.undo();
+		if (!isCheckAfterRemovePiece(editorGame.fen(), move.to)) {
+			var move = editorGame.move({
+				from: source,
+				to: target,
+				promotion: 'q'
+			})
+			$("#dialog-4").data('move', move).dialog("open");
+		} else {
+			var move = editorGame.move({
+				from: source,
+				to: target,
+				promotion: 'q'
+			})
+			handleValidMove(source, target)
+		}
 	}
 	editorGame.undo(); //move is ok, now we can go ahead and check for promotion
 	// is it a promotion?
