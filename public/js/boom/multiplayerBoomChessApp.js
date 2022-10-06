@@ -211,6 +211,7 @@ function onDropEditor(source, target) {
 						editorGame.move(move)
 						let pt = { type: move.promotion, color: move.color }
 						handlePawnPromo(source, target, pt)
+						alertCheckMate()
 					},
 					closeOnEscape: false,
 					dialogClass: "noTitleStuff",
