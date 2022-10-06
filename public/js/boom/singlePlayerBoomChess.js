@@ -20,6 +20,9 @@ piece_theme = "img/chesspieces/wikipedia/{piece}.png";
 var squareToHighlight = null
 var squareClass = 'square-55d63'
 
+let isBoomAllowed = true
+setBoomAllowed()
+
 let waitForBoom = false
 $(function () {
 	$("#dialog-4").dialog({
@@ -90,22 +93,9 @@ function onSnapEndEditor(params) {
 }
 
 function onDragStartEditor(source, piece, position, orientation) {
-	// CHECK AT END OF ONDROPEDITOR
-
-	// do not pick up pieces if the editorGame is over
-	// if (editorGame.game_over()) {
-	// 	if (editorGame.in_draw()) {
-	// 		alert('Game Draw!!');
-	// 	} else if (editorGame.in_checkmate()) {
-	// 		console.log('Check Mate')
-	// 		// if (sampleCheckMate(flag, piece)) {
-	// 		// 	return
-	// 		// }
-	// 	}
-	// 	// return false
-	// }
-	// only pick up pieces for White
-	// if (piece.search(/^b/) !== -1) return false
+	if (!isBoomAllowed) {
+		if (handleNormalCheckMate()) return false
+	}
 }
 
 function onDropEditor(source, target) {
@@ -131,7 +121,7 @@ function onDropEditor(source, target) {
 	}
 	myAudioEl.play();
 	// illegal move
-	if (move === null) {
+	if (move === null && isBoomAllowed) {
 		console.log("Move is null")
 		if (editorGame.get(target) && !isCheckAfterRemovePiece(currentFen, target)
 			&& fun === 1) {
@@ -152,12 +142,13 @@ function onDropEditor(source, target) {
 		}
 		return;
 	} else {
+		if (move === null) { handleNormalCheckMate(); return }
 		changeSquareColorAfterMove(source, target)
 	}
 	if (move != null && 'captured' in move && move.piece != 'p') {
 		waitForBoom = true
 		editorGame.undo();
-		if (!isCheckAfterRemovePiece(editorGame.fen(), move.to)) {
+		if (!isCheckAfterRemovePiece(editorGame.fen(), move.to) && isBoomAllowed) {
 			var move = editorGame.move({
 				from: source,
 				to: target,
@@ -200,6 +191,7 @@ function onDropEditor(source, target) {
 					close: () => {
 						move.promotion = promote_to
 						editorGame.move(move)
+						handleNormalCheckMate()
 						makeRandomMoveEditor()
 					},
 					closeOnEscape: false,
@@ -228,10 +220,10 @@ function onDropEditor(source, target) {
 		// window.setTimeout(makeRandomMoveEditor, 250)
 
 	}
-	if (!waitForBoom) {
+	if (!waitForBoom && isBoomAllowed) {
 		alertCheckMate()
 		makeRandomMoveEditor()
-	}
+	} else if (!isBoomAllowed) handleNormalCheckMate()
 }
 
 function alertCheckMate() {
@@ -453,3 +445,20 @@ function getImgSrc(piece) {
 	);
 }
 
+function setBoomAllowed() {
+	const urlParams = new URLSearchParams(window.location.search);
+	if (!urlParams.get('isBoomAllowed')) console.error("NO BOOM Instructions")
+	if (urlParams.get('isBoomAllowed') === 'false') isBoomAllowed = false
+	else isBoomAllowed = true
+}
+
+function handleNormalCheckMate() {
+	if (editorGame.game_over()) {
+		if (editorGame.in_draw()) {
+			alert('Game Draw!!');
+		} else if (editorGame.in_checkmate()) {
+			alert('Check Mate!!');
+		}
+		return true
+	}
+}
