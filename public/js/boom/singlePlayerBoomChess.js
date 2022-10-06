@@ -7,8 +7,11 @@ let play = true;
 var configEditor = {};
 var editorBoard = null;
 var boardJqry = $('#boardEditor')
+let tc1 = 'rnbq1k1r/pppB1ppp/5n2/8/4Q3/8/PPPPPPPP/RNB1K1NR w - - 0 1'
+let tc2 = 'rnbqkbnr/ppp1pppp/8/3p3Q/8/3K4/PPPPPPPP/RNB2BNR w - - 0 1'
+let cusFen = tc2
 var editorGame = new Chess()
-// console.log(editorGame.load('rnb3nr/ppp1P1pp/2k5/8/8/8/PPPP1PPP/RNBQKBNR w - - 0 1'))
+console.log(editorGame.load(cusFen))
 var fen, editorGame, piece_theme, promote_to, promoting, promotion_dialog;
 promotion_dialog = $("#promotion-dialog");
 promoting = false;
@@ -51,7 +54,7 @@ whiteColor.addEventListener('click', (e) => {
 
 	configEditor = {
 		draggable: true,
-		position: 'start',
+		position: cusFen,
 		onSnapEnd: onSnapEndEditor,
 		onDragStart: onDragStartEditor,
 		onDrop: onDropEditor,
@@ -132,16 +135,17 @@ function onDropEditor(source, target) {
 		if (editorGame.get(target) && !isCheckAfterRemovePiece(currentFen, target)
 			&& fun === 1) {
 			moveIllegal(source, target);
+			makeRandomMoveEditor()
 		}
-		if (editorGame.in_checkmate() || editorGame.in_check()) {
+		else if (editorGame.in_checkmate() || editorGame.in_check()) {
 			console.log('Check Mate')
 			if (editorGame.get(target) && !isCheckAfterRemovePiece(currentFen, target) && fun === 1) {
 				moveIllegal(source, target);
+				makeRandomMoveEditor()
 			} else {
 				return
 			}
 		} else {
-
 			console.log('Snap 2');
 			return
 		}
@@ -407,7 +411,8 @@ function isCheckForTurnAftermove(fen, source, target) {
 }
 
 function makeRandomMoveEditor() {
-	setTimeout(makeRandomMove, 1000);
+	// setTimeout(makeRandomMove, 1000);
+	console.log("Claaed")
 }
 
 // Misc Functions

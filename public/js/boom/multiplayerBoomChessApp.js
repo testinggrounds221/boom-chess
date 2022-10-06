@@ -142,18 +142,19 @@ function onDropEditor(source, target) {
 		if (editorGame.get(target) && !isCheckAfterRemovePiece(currentFen, target)
 			&& fun === 1) {
 			moveIllegal(source, target);
+			handleBoomMove(source, target)
 		}
 		// TODO: EMit Check mate
 
-		if (editorGame.in_checkmate() || editorGame.in_check()) {
+		else if (editorGame.in_checkmate() || editorGame.in_check()) {
 			console.log('Check Mate')
 			if (editorGame.get(target) && !isCheckAfterRemovePiece(currentFen, target) && fun === 1) {
 				moveIllegal(source, target);
+				handleBoomMove(source, target)
 			} else {
 				return
 			}
 		} else {
-
 			console.log('Snap 2');
 			return
 		}
