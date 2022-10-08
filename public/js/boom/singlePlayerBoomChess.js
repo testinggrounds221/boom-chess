@@ -418,8 +418,7 @@ function isCheckForTurnAftermove(fen, source, target) {
 }
 
 function makeRandomMoveEditor() {
-	// setTimeout(makeRandomMove, 1000);
-	console.log("Claaed")
+	setTimeout(makeRandomMove, 1000);	
 }
 
 // Misc Functions
