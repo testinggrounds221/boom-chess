@@ -12,6 +12,8 @@ const totalPlayersEl = document.getElementById('players')
 const ChatEl = document.querySelector('#chat')
 const sendButtonEl = document.querySelector('#send')
 const chatContentEl = document.getElementById('chatContent')
+const isBoomAllowedEle = document.getElementById('isBoomAllowed');
+
 var config = {};
 var board = null;
 var game = new Chess()
@@ -99,9 +101,22 @@ function onSnapEnd2() {
 singlePlayerEl.addEventListener('click', (e) => {
 	e.preventDefault();
 	let isBoomAllowed = document.querySelector('#isBoomAllowed').checked
-	location.href = `singlePlayerBoomChess.html?isBoomAllowed=${isBoomAllowed}`
+	let playWithComp = document.querySelector('#playWithComp').checked
+	if (isBoomAllowed)
+		location.href = `singlePlayerBoomChess.html?isBoomAllowed=${isBoomAllowed}&playWithComp=${playWithComp}`
+	else
+		location.href = `singlePlayerBoomChess.html?isBoomAllowed=false&playWithComp=false`
+
 })
 
+isBoomAllowedEle.addEventListener('change', () => {
+	let playWithCompEle = document.getElementById("playWtCmDiv")
+	if (isBoomAllowedEle.checked)
+		playWithCompEle.style.display = 'block'
+	else
+		playWithCompEle.style.display = 'none'
+
+})
 //Connection will be established after webpage is refreshed
 const socket = io()
 
