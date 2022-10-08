@@ -1,6 +1,8 @@
 const whiteColor = document.getElementById('white');
 const blackColor = document.getElementById('black');
 const myAudioEl = document.getElementById('myAudio');
+
+
 // const startEditor = document.getElementById('startEditor');
 var editorTurnt = 0;
 let play = true;
@@ -21,8 +23,10 @@ var squareToHighlight = null
 var squareClass = 'square-55d63'
 
 let isBoomAllowed = true
-setBoomAllowed()
+let playWithComp = true
 
+setBoomAllowed()
+setPlayWithComp()
 let waitForBoom = false
 $(function () {
 	$("#dialog-4").dialog({
@@ -418,7 +422,7 @@ function isCheckForTurnAftermove(fen, source, target) {
 }
 
 function makeRandomMoveEditor() {
-	setTimeout(makeRandomMove, 1000);	
+	if(playWithComp) setTimeout(makeRandomMove, 500);	
 }
 
 // Misc Functions
@@ -451,12 +455,22 @@ function setBoomAllowed() {
 	else isBoomAllowed = true
 }
 
+function setPlayWithComp() {
+	const urlParams = new URLSearchParams(window.location.search);
+	if (!urlParams.get('playWithComp')) console.error("NO playWithComp Instructions")
+	if (urlParams.get('playWithComp') === 'false') playWithComp = false
+	else playWithComp = true
+}
+
 function handleNormalCheckMate() {
 	if (editorGame.game_over()) {
 		if (editorGame.in_draw()) {
 			alert('Game Draw!!');
 		} else if (editorGame.in_checkmate()) {
-			alert('Check Mate!!');
+			if (editorGame.turn() === 'w')
+			alert('Black Wins')
+		if (editorGame.turn() === 'b')
+			alert('White Wins')
 		}
 		return true
 	}
