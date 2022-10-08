@@ -1,4 +1,4 @@
-import './boardEditor.js'
+// import './boardEditor.js'
 const formEl = document.querySelectorAll('#joinForm > div > input')
 const joinButtonEl = document.querySelector('#joinButton')
 const messageEl = document.querySelector('#message')
@@ -96,19 +96,11 @@ function onSnapEnd2() {
 	board.position(game.fen())
 }
 
-// singlePlayerEl.addEventListener('click', (e) => {
-// 	e.preventDefault();
-// 	document.getElementById('gameMode').style.display = "none";
-// 	document.querySelector('#chessGame').style.display = null;
-// 	config = {
-// 		draggable: true,
-// 		position: 'start',
-// 		onDragStart: onDragStart2,
-// 		onDrop: onDrop2,
-// 		onSnapEnd: onSnapEnd2
-// 	}
-// 	board = Chessboard('myBoard', config);
-// })
+singlePlayerEl.addEventListener('click', (e) => {
+	e.preventDefault();
+	let isBoomAllowed = document.querySelector('#isBoomAllowed').checked
+	location.href = `singlePlayerBoomChess.html?isBoomAllowed=${isBoomAllowed}`
+})
 
 //Connection will be established after webpage is refreshed
 const socket = io()
