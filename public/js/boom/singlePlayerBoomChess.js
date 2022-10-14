@@ -30,6 +30,7 @@ setPlayWithComp()
 let waitForBoom = false
 $(function () {
 	$("#dialog-4").dialog({
+		dialogClass: 'no-close',
 		autoOpen: false,
 		modal: true,
 		buttons: {
