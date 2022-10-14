@@ -1,4 +1,4 @@
-// import './boardEditor.js'
+import './boardEditor.js'
 const formEl = document.querySelectorAll('#joinForm > div > input')
 const joinButtonEl = document.querySelector('#joinButton')
 const messageEl = document.querySelector('#message')
