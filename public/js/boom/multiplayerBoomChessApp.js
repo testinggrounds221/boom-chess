@@ -358,9 +358,11 @@ socket.on('gameOver', (turn, win) => {
 	if (win) {
 		if (editorBoard.orientation().includes(turn)) {
 			statusEl.textContent = "You lost, better luck next time :)"
+			alert("You lost")
 		}
 		else {
 			statusEl.textContent = "Congratulations, you won!!"
+			alert("You Won")
 		}
 	}
 	else {
@@ -561,10 +563,19 @@ function changeSquareColorAfterMove(source, target) {
 //TODO: Emit Check mate
 function alertCheckMate() {
 	if (editorGame.in_checkmate() && isBoomCheckMate(editorGame.fen())) {
-		if (editorGame.turn() === 'w')
-			alert('Black Wins')
-		if (editorGame.turn() === 'b')
-			alert('White Wins')
+		if (editorBoard.orientation().includes(editorGame.turn())) {
+			statusEl.textContent = "You lost, better luck next time :)"
+			alert("You lost")
+		}
+		else {
+			statusEl.textContent = "Congratulations, you won!!"
+			// alert("You Won")
+		}
+
+		// if (editorGame.turn() === 'w')
+		// 	alert('Black Wins')
+		// if (editorGame.turn() === 'b')
+		// 	alert('White Wins')
 		return
 	}
 }
