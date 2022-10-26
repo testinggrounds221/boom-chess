@@ -21,6 +21,7 @@ promoting = false;
 piece_theme = "img/chesspieces/wikipedia/{piece}.png";
 var squareToHighlight = null
 var squareClass = 'square-55d63'
+let currentSource = null
 
 let isBoomAllowed = true
 let playWithComp = true
@@ -70,6 +71,7 @@ whiteColor.addEventListener('click', (e) => {
 		onMoveEnd: onMoveEnd,
 	}
 	editorBoard = Chessboard('boardEditor', configEditor);
+	addEventListeners()
 })
 
 blackColor.addEventListener('click', (e) => {
@@ -87,6 +89,7 @@ blackColor.addEventListener('click', (e) => {
 		onMoveEnd: onMoveEnd,
 	}
 	editorBoard = Chessboard('boardEditor', configEditor);
+	addEventListeners()
 	makeRandomMoveEditor()
 })
 
@@ -104,7 +107,11 @@ function onDragStartEditor(source, piece, position, orientation) {
 }
 
 function onDropEditor(source, target) {
+	if (source === target)
+		return onClickSquare(source)
+	currentSource = null
 	// see if the move is legal
+
 	var move = editorGame.move({
 		from: source,
 		to: target,
@@ -423,7 +430,7 @@ function isCheckForTurnAftermove(fen, source, target) {
 }
 
 function makeRandomMoveEditor() {
-	if(playWithComp) setTimeout(makeRandomMove, 500);	
+	if (playWithComp) setTimeout(makeRandomMove, 500);
 }
 
 // Misc Functions
@@ -469,10 +476,59 @@ function handleNormalCheckMate() {
 			alert('Game Draw!!');
 		} else if (editorGame.in_checkmate()) {
 			if (editorGame.turn() === 'w')
-			alert('Black Wins')
-		if (editorGame.turn() === 'b')
-			alert('White Wins')
+				alert('Black Wins')
+			if (editorGame.turn() === 'b')
+				alert('White Wins')
 		}
 		return true
+	}
+}
+
+function addEventListeners() {
+	// boardJqry.find('.square-' + sq).bind('click',)
+	editorGame.SQUARES.forEach(
+		(sq) => boardJqry.find('.square-' + sq).bind('click',
+			() => {
+				console.log(sq)
+				onClickSquare(sq)
+			}
+		))
+}
+
+function onClickSquare(sq) {
+	console.log(sq)
+	console.log(editorGame.get(sq))
+	console.log(editorBoard.orientation())
+
+	if (currentSource === null) {
+		if (editorGame.get(sq) === null) return
+		if (editorBoard.orientation().startsWith(editorGame.get(sq).color)) {
+			currentSource = sq
+			//removeHighlight
+			return
+		}
+	}
+	else {
+		if (editorGame.get(sq) === null) { // handle for not allowed Square
+			onDropEditor(currentSource, sq)
+			currentSource = null
+			return
+		}
+		// if (editorGame.get(sq) !== null) { // handle for not allowed Square
+		// 	ondrop(currentSource, sq)
+		// 	currentSource = null
+		// 	return
+		// }
+		if (editorGame.get(sq).color === editorGame.get(currentSource).color) {
+			currentSource = null
+			//removeHighlight
+			return
+		}
+
+		if (editorGame.get(sq).color !== editorGame.get(currentSource).color) {
+			onDropEditor(currentSource, sq)
+			currentSource = null
+			return
+		}
 	}
 }
