@@ -23,7 +23,6 @@ var squareToHighlight = null
 var squareClass = 'square-55d63'
 let currentSource = null
 
-
 let isBoomAllowed = true
 let playWithComp = true
 
