@@ -10,7 +10,7 @@ const totalPlayersEl = document.getElementById('players')
 const ChatEl = document.querySelector('#chat')
 const sendButtonEl = document.querySelector('#send')
 const chatContentEl = document.getElementById('chatContent')
-
+let currentSource = null
 var game = new Chess()
 var turnt = 0;
 
@@ -119,6 +119,9 @@ function onDrop(source, target) {
 }
 
 function onDropEditor(source, target) {
+	if (source === target)
+		return onClickSquare(source)
+	currentSource = null
 	// see if the move is legal
 	var move = editorGame.move({
 		from: source,
@@ -301,7 +304,7 @@ socket.on('DisplayBoard', (fenString, mvSq, userId) => {
 			pause_clock()
 		} else {
 			run_clock('clck', deadline);
-		}
+		}		
 		document.getElementById('joinFormDiv').style.display = "none";
 		document.querySelector('#chessGame').style.display = null
 		ChatEl.style.display = null
@@ -312,6 +315,7 @@ socket.on('DisplayBoard', (fenString, mvSq, userId) => {
 	configEditor.position = fenString
 	console.log(`Is received Fen String Valid ? ${editorGame.load(fenString)}`)
 	editorBoard = ChessBoard('boardEditor', configEditor)
+	addEventListeners()
 	changeSquareColorAfterMove(mvSq.source, mvSq.target)
 
 
@@ -659,3 +663,59 @@ function getImgSrc(piece) {
 		editorGame.turn() + piece.toLocaleUpperCase()
 	);
 }
+
+function addEventListeners() {
+	console.log("CAlles")
+	editorGame.SQUARES.forEach(
+		(sq) => boardJqry.find('.square-' + sq).bind('click',
+			() => {
+				onClickSquare(sq)
+			}
+		))
+}
+
+function currHighlight(sq) {
+	console.log(boardJqry.find('.square-' + sq).addClass('highlight-curr'))
+}
+
+function removeCurrHighlight() {
+	boardJqry.find('.' + squareClass).removeClass('highlight-curr')
+}
+
+
+function onClickSquare(sq) {
+	console.log(sq)
+	console.log(editorGame.get(sq))
+	console.log(editorBoard.orientation())
+
+	if (currentSource === null) {
+		if (editorGame.get(sq) === null) return
+		if (editorBoard.orientation().startsWith(editorGame.get(sq).color) && editorGame.turn().startsWith(editorGame.get(sq).color)) {
+			currentSource = sq
+			currHighlight(sq)
+			return
+		}
+	}
+	else {
+		if (editorGame.get(sq) === null) {
+			onDropEditor(currentSource, sq)
+			removeCurrHighlight()
+			currentSource = null
+			return
+		}
+
+		if (editorGame.get(sq).color === editorGame.get(currentSource).color) {
+			currentSource = null
+			removeCurrHighlight()
+			return
+		}
+
+		if (editorGame.get(sq).color !== editorGame.get(currentSource).color) {
+			onDropEditor(currentSource, sq)
+			currentSource = null
+			removeCurrHighlight()
+			return
+		}
+	}
+}
+
