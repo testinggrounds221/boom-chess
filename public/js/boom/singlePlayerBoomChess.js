@@ -21,6 +21,8 @@ promoting = false;
 piece_theme = "img/chesspieces/wikipedia/{piece}.png";
 var squareToHighlight = null
 var squareClass = 'square-55d63'
+let currentSource = null
+
 
 let isBoomAllowed = true
 let playWithComp = true
@@ -70,6 +72,7 @@ whiteColor.addEventListener('click', (e) => {
 		onMoveEnd: onMoveEnd,
 	}
 	editorBoard = Chessboard('boardEditor', configEditor);
+	addEventListeners()
 })
 
 blackColor.addEventListener('click', (e) => {
@@ -87,6 +90,7 @@ blackColor.addEventListener('click', (e) => {
 		onMoveEnd: onMoveEnd,
 	}
 	editorBoard = Chessboard('boardEditor', configEditor);
+	addEventListeners()
 	makeRandomMoveEditor()
 })
 
@@ -104,7 +108,11 @@ function onDragStartEditor(source, piece, position, orientation) {
 }
 
 function onDropEditor(source, target) {
+	if (source === target)
+		return onClickSquare(source)
+	currentSource = null
 	// see if the move is legal
+
 	var move = editorGame.move({
 		from: source,
 		to: target,
@@ -124,7 +132,7 @@ function onDropEditor(source, target) {
 			break;
 		}
 	}
-	myAudioEl.play();
+	// myAudioEl.play();
 	// illegal move
 	if (move === null && isBoomAllowed) {
 		console.log("Move is null")
@@ -148,7 +156,7 @@ function onDropEditor(source, target) {
 		return;
 	} else {
 		if (move === null) { handleNormalCheckMate(); return }
-		changeSquareColorAfterMove(source, target)
+		// changeSquareColorAfterMove(source, target)
 	}
 	if (move != null && 'captured' in move && move.piece != 'p') {
 		waitForBoom = true
@@ -423,7 +431,7 @@ function isCheckForTurnAftermove(fen, source, target) {
 }
 
 function makeRandomMoveEditor() {
-	if(playWithComp) setTimeout(makeRandomMove, 500);	
+	if (playWithComp) setTimeout(makeRandomMove, 500);
 }
 
 // Misc Functions
@@ -435,7 +443,7 @@ function makeRandomMove() {
 	}
 	var randomIdx = Math.floor(Math.random() * possibleMoves.length)
 	let move = editorGame.move(possibleMoves[randomIdx]);
-	myAudioEl.play();
+	// myAudioEl.play();
 	editorTurnt = 1 - editorTurnt;
 	editorBoard.position(editorGame.fen());
 	setTimeout(changeSquareColorAfterMove(move.from, move.to), 500)
@@ -469,10 +477,69 @@ function handleNormalCheckMate() {
 			alert('Game Draw!!');
 		} else if (editorGame.in_checkmate()) {
 			if (editorGame.turn() === 'w')
-			alert('Black Wins')
-		if (editorGame.turn() === 'b')
-			alert('White Wins')
+				alert('Black Wins')
+			if (editorGame.turn() === 'b')
+				alert('White Wins')
 		}
 		return true
+	}
+}
+
+function addEventListeners() {
+	// boardJqry.find('.square-' + sq).bind('click',)
+	editorGame.SQUARES.forEach(
+		(sq) => boardJqry.find('.square-' + sq).bind('click',
+			() => {
+				console.log(sq)
+				onClickSquare(sq)
+			}
+		))
+}
+
+function currHighlight(sq) {
+	console.log(boardJqry.find('.square-' + sq).addClass('highlight-curr'))
+}
+
+function removeCurrHighlight() {
+	boardJqry.find('.' + squareClass).removeClass('highlight-curr')
+}
+
+function onClickSquare(sq) {
+	console.log(sq)
+	console.log(editorGame.get(sq))
+	console.log(editorBoard.orientation())
+
+	if (currentSource === null) {
+		if (editorGame.get(sq) === null) return
+		if (editorBoard.orientation().startsWith(editorGame.get(sq).color)) {
+			currentSource = sq
+			currHighlight(sq)
+			return
+		}
+	}
+	else {
+		if (editorGame.get(sq) === null) { // handle for not allowed Square
+			onDropEditor(currentSource, sq)
+			removeCurrHighlight()
+			currentSource = null // redundant but for logic purp
+			return
+		}
+		// if (editorGame.get(sq) !== null) { // handle for not allowed Square
+		// 	ondrop(currentSource, sq)
+		// 	currentSource = null
+		// 	return
+		// }
+		if (editorGame.get(sq).color === editorGame.get(currentSource).color) {
+			currentSource = null
+			removeCurrHighlight()
+			return
+		}
+
+		if (editorGame.get(sq).color !== editorGame.get(currentSource).color) {
+			onDropEditor(currentSource, sq)
+			currentSource = null
+			removeCurrHighlight()
+			return
+		}
 	}
 }
