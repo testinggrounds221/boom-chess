@@ -35,6 +35,7 @@ let configEditor = {
 	onSnapEnd: onSnapEndEditor,
 	onDrop: onDropEditor,
 	onMoveEnd: onMoveEnd,
+	onDragStart: () => { return false }
 }
 editorBoard = Chessboard('boardEditor', configEditor);
 $("#promote-to").selectable({
@@ -304,7 +305,7 @@ socket.on('DisplayBoard', (fenString, mvSq, userId) => {
 			pause_clock()
 		} else {
 			run_clock('clck', deadline);
-		}		
+		}
 		document.getElementById('joinFormDiv').style.display = "none";
 		document.querySelector('#chessGame').style.display = null
 		ChatEl.style.display = null

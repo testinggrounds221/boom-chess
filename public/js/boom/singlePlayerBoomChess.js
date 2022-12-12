@@ -101,6 +101,7 @@ function onSnapEndEditor(params) {
 }
 
 function onDragStartEditor(source, piece, position, orientation) {
+	return false
 	if (!isBoomAllowed) {
 		if (handleNormalCheckMate()) return false
 	}
