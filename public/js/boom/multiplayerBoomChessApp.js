@@ -116,7 +116,7 @@ function onDrop(source, target) {
 	var room = formEl[1].value;
 	myAudioEl.play();
 	// isMyTurn(false)
-	socket.emit('Dropped', { source, target, room })
+	// socket.emit('Dropped', { source, target, room })
 }
 
 function onDropEditor(source, target) {
@@ -166,6 +166,11 @@ function onDropEditor(source, target) {
 		return;
 	} else {
 		// changeSquareColorAfterMove(source, target)
+		if (move.san === "O-O" || move.san === "O-O-O") {
+			alertCheckMate()
+			handleCastleMove(source, target)
+			return
+		}
 	}
 	if (move != null && 'captured' in move && move.piece != 'p') {
 		waitForBoom = true
@@ -267,6 +272,13 @@ function handleBoomMove(source, target) {
 	var room = formEl[1].value;
 	myAudioEl.play();
 	socket.emit('boomDropped', { source, target, room })
+}
+
+function handleCastleMove(source, target) {
+	pause_clock();
+	var room = formEl[1].value;
+	myAudioEl.play();
+	socket.emit('castleDropped', { source, target, room })
 }
 
 function handlePawnPromo(source, target, pieceType) {

@@ -167,6 +167,36 @@ io.on('connection', (socket) => {
 		updateStatus(game, room)
 	})
 
+	socket.on('castleDropped', ({ source, target, room }) => {
+		var game = gameData[socket.id]
+
+		game.move({
+			from: source,
+			to: target,
+			promotion: 'q' // NOTE: always promote to a queen for example simplicity
+		})
+		// let sourcePiece = game.get(source)
+		// game.remove(source)
+		// game.put({ type: sourcePiece.type, color: sourcePiece.color }, target)
+		let eg = game.fen()
+		console.log("ddedd", eg)
+		let isCheck = null
+		// if (game.turn() === 'w') {
+		// 	let myArray = eg.split(" ");
+		// 	myArray[1] = "b";
+		// 	isCheck = myArray.join(" ");
+		// }
+		// if (game.turn() === 'b') {
+		// 	let myArray = eg.split(" ");
+		// 	myArray[1] = "w";
+		// 	isCheck = myArray.join(" ");
+		// }
+		// game.load(isCheck)
+		io.to(room).emit('Dragging', socket.id)
+		io.to(room).emit('DisplayBoard', game.fen(), { source, target }, undefined)
+		updateStatus(game, room)
+	})
+
 	//Catching message event
 	socket.on('sendMessage', ({ user, room, message }) => {
 		io.to(room).emit('receiveMessage', user, message)

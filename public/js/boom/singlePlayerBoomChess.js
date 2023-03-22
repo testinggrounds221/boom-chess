@@ -12,6 +12,7 @@ var boardJqry = $('#boardEditor')
 let org = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
 let tc1 = 'rnbq1k1r/pppB1ppp/5n2/8/4Q3/8/PPPPPPPP/RNB1K1NR w - - 0 1'
 let tc2 = 'rnbqkbnr/ppp1pppp/8/3p3Q/8/3K4/PPPPPPPP/RNB2BNR w - - 0 1'
+let tc3 = 'r3k2r/p1pp1ppp/bpnbpq1n/8/3Q4/N3BNPB/PPP1PP1P/R3K2R w KQkq - 0 1'
 let cusFen = org
 var editorGame = new Chess()
 console.log(editorGame.load(cusFen))
