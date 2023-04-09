@@ -82,9 +82,10 @@ function setupGameBoard(orientation) {
 	}
 	editorBoard = Chessboard('boardEditor', configEditor);
 	addEventListeners()
+	console.log(orientation,)
 
-	if (orientation === 'black' && editorGame.turn == 'w') makeRandomMoveEditor()
-	if (orientation === 'white' && editorGame.turn == 'b') makeRandomMoveEditor()
+	if (orientation === 'black' && editorGame.turn() == 'w') makeRandomMoveEditor()
+	if (orientation === 'white' && editorGame.turn() == 'b') makeRandomMoveEditor()
 }
 
 whiteColor.addEventListener('click', (e) => {
