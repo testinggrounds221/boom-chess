@@ -1,5 +1,7 @@
+// TODO : BOard Refreshes to new state after loading
 const whiteColor = document.getElementById('white');
 const blackColor = document.getElementById('black');
+const saveGame = document.getElementById('saveGame');
 const myAudioEl = document.getElementById('myAudio');
 
 
@@ -13,10 +15,8 @@ let org = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1'
 let tc1 = 'rnbq1k1r/pppB1ppp/5n2/8/4Q3/8/PPPPPPPP/RNB1K1NR w - - 0 1'
 let tc2 = 'rnbqkbnr/ppp1pppp/8/3p3Q/8/3K4/PPPPPPPP/RNB2BNR w - - 0 1'
 let tc3 = 'r3k2r/p1pp1ppp/bpnbpq1n/8/3Q4/N3BNPB/PPP1PP1P/R3K2R w KQkq - 0 1'
-let cusFen = org
-var editorGame = new Chess()
-console.log(editorGame.load(cusFen))
-var fen, editorGame, piece_theme, promote_to, promoting, promotion_dialog;
+var editorGame;
+var fen, piece_theme, promote_to, promoting, promotion_dialog;
 promotion_dialog = $("#promotion-dialog");
 promoting = false;
 piece_theme = "img/chesspieces/wikipedia/{piece}.png";
@@ -26,9 +26,13 @@ let currentSource = null
 
 let isBoomAllowed = true
 let playWithComp = true
+let loadGame = true
 
+let loadGameFen = null
 setBoomAllowed()
 setPlayWithComp()
+setLoadGame()
+
 let waitForBoom = false
 $(function () {
 	$("#dialog-4").dialog({
@@ -57,42 +61,44 @@ $(function () {
 	});
 });
 
-
-whiteColor.addEventListener('click', (e) => {
-	e.preventDefault();
+function setupGameBoard(orientation) {
 	document.getElementById('gameMode').style.display = "none";
-	document.querySelector('#boardEditorGame').style.display = null;
-
-	configEditor = {
-		draggable: true,
-		position: cusFen,
-		onSnapEnd: onSnapEndEditor,
-		onDragStart: onDragStartEditor,
-		onDrop: onDropEditor,
-		onMoveEnd: onMoveEnd,
-	}
-	editorBoard = Chessboard('boardEditor', configEditor);
-	addEventListeners()
-})
-
-blackColor.addEventListener('click', (e) => {
-	e.preventDefault();
-	document.getElementById('gameMode').style.display = "none";
+	document.getElementById('saveGame').style.display = null;
 	document.querySelector('#boardEditorGame').style.display = null;
 
 	configEditor = {
 		draggable: true,
 		position: 'start',
-		orientation: 'black',
 		onSnapEnd: onSnapEndEditor,
 		onDragStart: onDragStartEditor,
 		onDrop: onDropEditor,
 		onMoveEnd: onMoveEnd,
+		orientation: orientation
+	}
+	editorGame = new Chess()
+	if (loadGame && loadGameFen) {
+		configEditor = { ...configEditor, position: loadGameFen };
+		editorGame.load(loadGameFen)
 	}
 	editorBoard = Chessboard('boardEditor', configEditor);
 	addEventListeners()
-	makeRandomMoveEditor()
+
+	if (orientation === 'black' && editorGame.turn == 'w') makeRandomMoveEditor()
+	if (orientation === 'white' && editorGame.turn == 'b') makeRandomMoveEditor()
+}
+
+whiteColor.addEventListener('click', (e) => {
+	e.preventDefault();
+	setupGameBoard('white')
 })
+
+blackColor.addEventListener('click', (e) => {
+	e.preventDefault();
+	setupGameBoard('black')
+
+})
+
+saveGame.addEventListener('click', saveGameListener)
 
 var validMoves = []
 // Board Change Functions
@@ -436,6 +442,12 @@ function makeRandomMoveEditor() {
 }
 
 // Misc Functions
+function saveGameListener(e) {
+	e.preventDefault();
+	var copyText = editorGame.fen();
+	navigator.clipboard.writeText(copyText);
+	alert("Copied the text: " + copyText + " to clipboard");
+}
 function makeRandomMove() {
 	var possibleMoves = editorGame.moves()
 	// editorGame over
@@ -467,9 +479,24 @@ function setBoomAllowed() {
 
 function setPlayWithComp() {
 	const urlParams = new URLSearchParams(window.location.search);
-	if (!urlParams.get('playWithComp')) console.error("NO playWithComp Instructions")
+	if (!urlParams.get('playWithComp')) { console.error("NO playWithComp Instructions"); }
 	if (urlParams.get('playWithComp') === 'false') playWithComp = false
 	else playWithComp = true
+}
+
+function setLoadGame() {
+	const urlParams = new URLSearchParams(window.location.search);
+	if (!urlParams.get('loadGame')) { console.error("NO Load Game Instructions"); loadGame = false; return }
+	if (urlParams.get('loadGame') === 'false') loadGame = false
+	else {
+		loadGame = true
+		let cusFen = prompt('Enter State of Game : ');
+
+		var temp = new Chess()
+		if (cusFen && !temp.load(cusFen)) { alert("Enter Valid State !"); return }
+		loadGameFen = cusFen
+		alert("Loaded Game! Choose Color");
+	}
 }
 
 function handleNormalCheckMate() {

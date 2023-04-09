@@ -102,10 +102,13 @@ singlePlayerEl.addEventListener('click', (e) => {
 	e.preventDefault();
 	let isBoomAllowed = document.querySelector('#isBoomAllowed').checked
 	let playWithComp = document.querySelector('#playWithComp').checked
+	let loadGame = document.querySelector('#loadGame').checked
+
 	if (isBoomAllowed)
-		location.href = `singlePlayerBoomChess.html?isBoomAllowed=${isBoomAllowed}&playWithComp=${playWithComp}`
+		location.href = `singlePlayerBoomChess.html?isBoomAllowed=${isBoomAllowed}&playWithComp=${playWithComp}&loadGame=${loadGame}`
 	else
-		location.href = `singlePlayerBoomChess.html?isBoomAllowed=false&playWithComp=false`
+		location.href = `singlePlayerBoomChess.html?isBoomAllowed=false&playWithComp=false&loadGame=${loadGame}`
+
 
 })
 
