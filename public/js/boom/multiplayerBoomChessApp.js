@@ -13,7 +13,7 @@ const chatContentEl = document.getElementById('chatContent')
 let currentSource = null
 var game = new Chess()
 var turnt = 0;
-
+let globalRooms = null
 var editorTurnt = 0;
 let play = true;
 var editorBoard = null;
@@ -328,6 +328,7 @@ socket.on('DisplayBoard', (fenString, mvSq, userId) => {
 	configEditor.position = fenString
 	console.log(`Is received Fen String Valid ? ${editorGame.load(fenString)}`)
 	editorBoard = ChessBoard('boardEditor', configEditor)
+	editorBoard.position(fenString)
 	addEventListeners()
 	changeSquareColorAfterMove(mvSq.source, mvSq.target)
 
@@ -421,6 +422,8 @@ socket.on('roomsList', (rooms) => {
 	// roomsListEl.innerHTML = null;
 	// console.log('Rooms List event triggered!! ',  rooms);
 	totalRoomsEl.innerHTML = rooms.length
+	globalRooms = rooms
+	console.log(rooms)
 	var dropRooms = document.getElementById('dropRooms')
 	while (dropRooms.firstChild) {
 		dropRooms.removeChild(dropRooms.firstChild)
@@ -467,7 +470,13 @@ joinButtonEl.addEventListener('click', (e) => {
 		document.querySelector('#roomDropdownP').style.display = 'none';
 		formEl[1].setAttribute("disabled", "disabled")
 		//Now Let's try to join it in room // If users more than 2 we will 
-		socket.emit('joinRoom', { user, room }, (error) => {
+
+		let loadFen = null
+		let isRoomPresent = false
+		for (let r of globalRooms) if (room === r) isRoomPresent = true
+		if (isRoomPresent)
+			loadFen = prompt("Enter Fen. Click Cancel to Continue")
+		socket.emit('joinRoom', { user, room, loadFen }, (error) => {
 			messageEl.textContent = error
 			if (alert(error)) {
 				window.location.reload()

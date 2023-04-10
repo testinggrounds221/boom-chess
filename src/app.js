@@ -49,7 +49,7 @@ io.on('connection', (socket) => {
 	}
 
 	//Creating and joining the room
-	socket.on('joinRoom', ({ user, room }, callback) => {
+	socket.on('joinRoom', ({ user, room, loadFen }, callback) => {
 		//We have to limit the number of users in a room to be just 2
 		if (io.nsps['/'].adapter.rooms[room] && io.nsps['/'].adapter.rooms[room].length === 2) {
 			return callback('Already 2 users are there in the room!')
@@ -86,6 +86,8 @@ io.on('connection', (socket) => {
 			totalRooms = roomsList.length
 			io.emit('totalRooms', totalRooms)
 			var game = new Chess()
+			if (loadFen && loadFen.length > 1)
+				game.load(loadFen)
 			//For getting ids of the clients
 			for (var x in io.nsps['/'].adapter.rooms[room].sockets) {
 				gameData[x] = game
