@@ -10,6 +10,7 @@ const totalPlayersEl = document.getElementById('players')
 const ChatEl = document.querySelector('#chat')
 const sendButtonEl = document.querySelector('#send')
 const chatContentEl = document.getElementById('chatContent')
+const saveGame = document.getElementById('saveGame');
 let currentSource = null
 var game = new Chess()
 var turnt = 0;
@@ -293,6 +294,13 @@ function onSnapEndEditor(params) {
 	editorBoard.position(editorGame.fen())
 }
 
+function saveGameListener(e) {
+	e.preventDefault();
+	var copyText = editorGame.fen();
+	navigator.clipboard.writeText(copyText);
+	alert("Copied the text: " + copyText + " to clipboard");
+}
+
 //Update Status Event
 socket.on('updateEvent', ({ status, fen, pgn }) => {
 	statusEl.textContent = status
@@ -470,12 +478,26 @@ joinButtonEl.addEventListener('click', (e) => {
 		document.querySelector('#roomDropdownP').style.display = 'none';
 		formEl[1].setAttribute("disabled", "disabled")
 		//Now Let's try to join it in room // If users more than 2 we will 
+		const promptFen = () => {
+			let lf = null
+			lf = prompt("Enter Fen. Click Cancel to Continue")
+			var temp = new Chess()
+			if (lf && !temp.load(lf)) {
+				console.log(temp.load(lf))
+				alert("Enter Valid State !");
+				promptFen()
+			}
+			else return lf
+		}
 
+		const urlParams = new URLSearchParams(window.location.search);
+		if (!urlParams.get('loadGame')) console.error("NO LOADGAME Instructions")
 		let loadFen = null
 		let isRoomPresent = false
 		for (let r of globalRooms) if (room === r) isRoomPresent = true
-		if (isRoomPresent)
-			loadFen = prompt("Enter Fen. Click Cancel to Continue")
+		if (isRoomPresent && urlParams.get('loadGame') === 'true') {
+			loadFen = promptFen()
+		}
 		socket.emit('joinRoom', { user, room, loadFen }, (error) => {
 			messageEl.textContent = error
 			if (alert(error)) {
@@ -487,6 +509,8 @@ joinButtonEl.addEventListener('click', (e) => {
 		messageEl.textContent = "Waiting for other player to join"
 	}
 })
+
+saveGame.addEventListener('click', saveGameListener)
 
 function time_remaining(endtime) {
 	var t = Date.parse(endtime) - Date.parse(new Date());

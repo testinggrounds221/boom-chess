@@ -112,6 +112,13 @@ singlePlayerEl.addEventListener('click', (e) => {
 
 })
 
+multiPlayerEl.addEventListener('click', (e) => {
+	e.preventDefault();
+	console.log("Heyyy")
+	let loadGame = document.querySelector('#loadGame').checked
+	location.href = `multiPlayerBoomChess.html?loadGame=${loadGame}`
+})
+
 isBoomAllowedEle.addEventListener('change', () => {
 	let playWithCompEle = document.getElementById("playWtCmDiv")
 	if (isBoomAllowedEle.checked)
