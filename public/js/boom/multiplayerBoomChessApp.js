@@ -358,6 +358,7 @@ socket.on('DisplayBoard', (fenString, mvSq, userId) => {
 
 socket.on('changeHistoryFromSever', (changeFen) => {
 	addEventListeners()
+	isChangeFen = false
 	setBoardAndGame(changeFen)
 })
 
@@ -814,5 +815,4 @@ function setBoardAndGame({ moveFen, rowNum, turn }) {
 	// for (let i = rowNum + 1; i < maxLenB; i++) {
 	// 	document.getElementById(`m${turn}-${i}`).remove()
 	// }
-	if (playWithComp) if (editorGame.turn() === 'b') makeRandomMoveEditor()
 }
