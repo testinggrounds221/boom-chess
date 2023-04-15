@@ -121,6 +121,12 @@ io.on('connection', (socket) => {
 		updateStatus(game, room)
 	})
 
+	socket.on('changeHistory', ({ changeFen, room }) => {
+		var game = gameData[socket.id]
+		game.load(changeFen.moveFen)
+		io.to(room).emit('changeHistoryFromSever', changeFen)
+		updateStatus(game, room)
+	})
 	//For catching dropped event
 	socket.on('pawnPromoDropped', ({ source, target, pieceType, room }) => {
 		var game = gameData[socket.id]

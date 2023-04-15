@@ -27,6 +27,9 @@ piece_theme = "img/chesspieces/wikipedia/{piece}.png";
 var squareToHighlight = null
 var squareClass = 'square-55d63'
 
+let isChangeFen = false
+let changeFen = {}
+
 let waitForBoom = false
 
 let configEditor = {
@@ -124,6 +127,7 @@ function onDropEditor(source, target) {
 	if (source === target)
 		return onClickSquare(source)
 	currentSource = null
+	if (isChangeFen) handleChangeHistory(changeFen)
 	// see if the move is legal
 	var move = editorGame.move({
 		from: source,
@@ -136,7 +140,6 @@ function onDropEditor(source, target) {
 	let validMovesOfPieces = editorGame.moves({ verbose: true, legal: false })
 	for (let i = 0; i < validMovesOfPieces.length; i++) {
 		if (validMovesOfPieces[i].from === source && validMovesOfPieces[i].to === target) {
-			console.log(validMovesOfPieces[i].from)
 			fun = 1;
 			break;
 		}
@@ -289,6 +292,12 @@ function handlePawnPromo(source, target, pieceType) {
 	socket.emit('pawnPromoDropped', { source, target, pieceType, room })
 }
 
+function handleChangeHistory(changeFen) {
+	var room = formEl[1].value;
+	// myAudioEl.play(); Can use Shuffle Sound ?
+	socket.emit('changeHistory', { changeFen, room })
+}
+
 function onSnapEndEditor(params) {
 	if (promoting) return; //if promoting we need to select the piece first
 	editorBoard.position(editorGame.fen())
@@ -332,17 +341,24 @@ socket.on('DisplayBoard', (fenString, mvSq, userId) => {
 		document.getElementById('statusPGN').style.display = null
 	}
 
-	console.log(mvSq)
 	configEditor.position = fenString
 	console.log(`Is received Fen String Valid ? ${editorGame.load(fenString)}`)
 	editorBoard = ChessBoard('boardEditor', configEditor)
 	editorBoard.position(fenString)
 	addEventListeners()
-	changeSquareColorAfterMove(mvSq.source, mvSq.target)
+	if (!userId)
+		addMoveToHistory(fenString)
+	if (mvSq.source && mvSq.source)
+		changeSquareColorAfterMove(mvSq.source, mvSq.target)
 
 
 	// console.log(turnt)
 	// document.getElementById('pgn').textContent = pgn
+})
+
+socket.on('changeHistoryFromSever', (changeFen) => {
+	addEventListeners()
+	setBoardAndGame(changeFen)
 })
 
 //To turn off dragging
@@ -431,7 +447,6 @@ socket.on('roomsList', (rooms) => {
 	// console.log('Rooms List event triggered!! ',  rooms);
 	totalRoomsEl.innerHTML = rooms.length
 	globalRooms = rooms
-	console.log(rooms)
 	var dropRooms = document.getElementById('dropRooms')
 	while (dropRooms.firstChild) {
 		dropRooms.removeChild(dropRooms.firstChild)
@@ -483,7 +498,7 @@ joinButtonEl.addEventListener('click', (e) => {
 			lf = prompt("Enter Fen. Click Cancel to Continue")
 			var temp = new Chess()
 			if (lf && !temp.load(lf)) {
-				console.log(temp.load(lf))
+				temp.load(lf)
 				alert("Enter Valid State !");
 				promptFen()
 			}
@@ -573,15 +588,12 @@ function isCheckAfterRemovePiece(fen, square) {
 function moveIllegal(source, target) {
 	if (!editorGame.get(target)) return
 	let currentFen = editorGame.fen()
-	console.log(source, target)
 	var custommove = editorGame.get(source);
 	editorGame.load(currentFen)
-	console.log(editorGame.put({ type: custommove.type, color: custommove.color }, target))
+	editorGame.put({ type: custommove.type, color: custommove.color }, target)
 	editorGame.remove(target)
 	let isCheck = null
 	let eg = editorGame.fen()
-	console.log(editorGame.fen())
-	console.log(editorGame.in_check())
 
 	if (editorGame.turn() === 'w') {
 		let myArray = eg.split(" ");
@@ -593,10 +605,8 @@ function moveIllegal(source, target) {
 		myArray[1] = "w";
 		isCheck = myArray.join(" ");
 	}
-	console.log("Load Check")
+
 	editorGame.load(isCheck)
-	console.log(editorGame.in_check())
-	console.log(editorGame.fen())
 	editorBoard.position(isCheck, false);
 
 	// changeSquareColorAfterMove(source, target)
@@ -639,7 +649,6 @@ function isBoomCheckMate(fen) {
 	let mvs = c.moves({ verbose: true, legal: false })
 	for (let i = 0; i < mvs.length; i++) {
 		const mv = mvs[i];
-		console.log(mv.flags)
 
 		if (mv.flags === 'c' && !isCheckAfterRemovePiece(fen, mv.to)) {
 			console.log(mv) // ! DO NOT DLT. Keep This Console Log for moves
@@ -651,7 +660,6 @@ function isBoomCheckMate(fen) {
 
 function moveBack(move) {
 	let currentFen = editorGame.fen()
-	console.log('Move Me to my old position')
 	editorGame.load(currentFen)
 	editorGame.put({
 		type: move.piece,
@@ -711,7 +719,6 @@ function getImgSrc(piece) {
 }
 
 function addEventListeners() {
-	console.log("CAlles")
 	editorGame.SQUARES.forEach(
 		(sq) => boardJqry.find('.square-' + sq).bind('click',
 			() => {
@@ -721,18 +728,14 @@ function addEventListeners() {
 }
 
 function currHighlight(sq) {
-	console.log(boardJqry.find('.square-' + sq).addClass('highlight-curr'))
+	boardJqry.find('.square-' + sq).addClass('highlight-curr')
 }
 
 function removeCurrHighlight() {
 	boardJqry.find('.' + squareClass).removeClass('highlight-curr')
 }
 
-
 function onClickSquare(sq) {
-	console.log(sq)
-	console.log(editorGame.get(sq))
-	console.log(editorBoard.orientation())
 
 	if (currentSource === null) {
 		if (editorGame.get(sq) === null) return
@@ -765,3 +768,51 @@ function onClickSquare(sq) {
 	}
 }
 
+// Change History Functions
+function addMoveToHistory(moveFen) {
+	let moveTable = null
+	let myArray = moveFen.split(" ");
+	const currTurn = myArray[1]
+	if (currTurn === 'b')
+		moveTable = document.getElementById("whiteMoves")
+	else moveTable = document.getElementById("blackMoves")
+
+	let tr = document.createElement("tr")
+	let td = document.createElement("td")
+	const rowNum = moveTable.rows.length
+	td.innerText = `m${currTurn}-${rowNum}`
+	td.addEventListener('click', () => { previewFen(moveFen, rowNum, currTurn) })
+	td.style = "cursor:pointer"
+	tr.appendChild(td)
+	tr.id = `m${currTurn}-${rowNum}`
+	moveTable.appendChild(tr)
+}
+
+function previewFen(moveFen, rowNum, turn) {
+	editorGame.load(moveFen)
+	editorBoard.position(moveFen)
+	changeFen = { moveFen, rowNum, turn }
+	isChangeFen = true
+}
+
+function setBoardAndGame({ moveFen, rowNum, turn }) {
+	isChangeFen = false
+	editorGame.load(moveFen)
+	editorBoard.position(moveFen)
+	// TODO emit Change History like in handle valid move
+	const whiteTable = document.getElementById("whiteMoves")
+	const blackTable = document.getElementById("blackMoves")
+
+	const maxLenW = whiteTable.rows.length
+	if (turn === 'w') rowNum++
+	for (let i = rowNum; i < maxLenW; i++) {
+		document.getElementById(`mw-${i}`).remove()
+		document.getElementById(`mb-${i}`).remove()
+	}
+
+	// const maxLenB = blackTable.rows.length
+	// for (let i = rowNum + 1; i < maxLenB; i++) {
+	// 	document.getElementById(`m${turn}-${i}`).remove()
+	// }
+	if (playWithComp) if (editorGame.turn() === 'b') makeRandomMoveEditor()
+}

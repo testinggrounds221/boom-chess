@@ -123,127 +123,148 @@
       <!-- /Input Form -->
       <div>
         <!-- Chess Board -->
-        <div id="chessGame" style="display: none">
-          <!-- Color Schemes -->
+        <div class="ui two column doubling stackable grid container">
+          <div class="column">
+            <div id="chessGame" style="display: none">
+              <!-- Color Schemes -->
 
-          <!-- Status and PGN -->
-          <div id="statusPGN" style="text-align: center; display: none">
-            <div>
-              <label>
-                <h3><strong>Status</strong></h3>
-              </label>
-              <div id="status">Your Turn</div>
-            </div>
-            <div>
-              <label>
-                <h3><strong>History</strong></h3>
-              </label>
+              <!-- Status and PGN -->
+              <div id="statusPGN" style="text-align: center; display: none">
+                <div>
+                  <label>
+                    <h3><strong>Status</strong></h3>
+                  </label>
+                  <div id="status">Your Turn</div>
+                </div>
+                <div>
+                  <label>
+                    <h3><strong>History</strong></h3>
+                  </label>
+                  <div
+                    id="pgn"
+                    style="
+                      overflow: auto;
+                      white-space: nowrap;
+                      width: 500px;
+                      margin: auto;
+                    "
+                  ></div>
+                </div>
+              </div>
               <div
-                id="pgn"
+                id="boardEditor"
                 style="
-                  overflow: auto;
-                  white-space: nowrap;
-                  width: 500px;
+                  width: 60vh;
                   margin: auto;
+                  margin-top: 10px;
+                  margin-bottom: 10px;
                 "
+              >
+                <div id="dialog-4" title="Boomerang Move">
+                  <p style="margin: 12px">Do you want to move back ?</p>
+                </div>
+              </div>
+              <div id="promotion-dialog">
+                <ol id="promote-to">
+                  <li class="ui-state-default">
+                    <span class="piece-name">q</span
+                    ><img class="promotion-piece-q promotion-piece" />
+                  </li>
+                  <li class="ui-state-default">
+                    <span class="piece-name">r</span
+                    ><img class="promotion-piece-r promotion-piece" />
+                  </li>
+                  <li class="ui-state-default">
+                    <span class="piece-name">n</span
+                    ><img class="promotion-piece-n promotion-piece" />
+                  </li>
+                  <li class="ui-state-default">
+                    <span class="piece-name">b</span
+                    ><img class="promotion-piece-b promotion-piece" />
+                  </li>
+                </ol>
+              </div>
+              <div
+                style="text-align: center; margin-bottom: 20px; margin-top: 5px"
+                id="clck"
               ></div>
+              <div style="text-align: center; margin-bottom: 20px">
+                <a href="/" class="ui button black" style="width: 569px"
+                  >Leave Game</a
+                >
+              </div>
+              <div
+                style="text-align: center; margin-bottom: 20px"
+                id="saveGame"
+              >
+                <a class="ui button black" style="width: 569px">Save Game</a>
+              </div>
             </div>
-          </div>
-          <div
-            id="boardEditor"
-            style="
-              width: 60vh;
-              margin: auto;
-              margin-top: 10px;
-              margin-bottom: 10px;
-            "
-          >
-            <div id="dialog-4" title="Boomerang Move">
-              <p style="margin: 12px">Do you want to move back ?</p>
-            </div>
-          </div>
-          <div id="promotion-dialog">
-            <ol id="promote-to">
-              <li class="ui-state-default">
-                <span class="piece-name">q</span
-                ><img class="promotion-piece-q promotion-piece" />
-              </li>
-              <li class="ui-state-default">
-                <span class="piece-name">r</span
-                ><img class="promotion-piece-r promotion-piece" />
-              </li>
-              <li class="ui-state-default">
-                <span class="piece-name">n</span
-                ><img class="promotion-piece-n promotion-piece" />
-              </li>
-              <li class="ui-state-default">
-                <span class="piece-name">b</span
-                ><img class="promotion-piece-b promotion-piece" />
-              </li>
-            </ol>
-          </div>
-          <div
-            style="text-align: center; margin-bottom: 20px; margin-top: 5px"
-            id="clck"
-          ></div>
-          <div style="text-align: center; margin-bottom: 20px">
-            <a href="/" class="ui button black" style="width: 569px"
-              >Leave Game</a
-            >
-          </div>
-          <div style="text-align: center; margin-bottom: 20px" id="saveGame">
-            <a class="ui button black" style="width: 569px">Save Game</a>
-          </div>
-        </div>
-        <div id="boardEditorGame" style="display: none">
-          <div
-            id="boardEditor"
-            style="
-              width: 60vh;
-              margin: auto;
-              margin-top: 10px;
-              margin-bottom: 10px;
-            "
-          >
-            <div id="dialog-4" title="Boomerang Move">
-              <p style="margin: 12px">Do you want to move back ?</p>
-            </div>
-          </div>
-          <div id="promotion-dialog">
-            <ol id="promote-to">
-              <li class="ui-state-default">
-                <span class="piece-name">q</span
-                ><img class="promotion-piece-q promotion-piece" />
-              </li>
-              <li class="ui-state-default">
-                <span class="piece-name">r</span
-                ><img class="promotion-piece-r promotion-piece" />
-              </li>
-              <li class="ui-state-default">
-                <span class="piece-name">n</span
-                ><img class="promotion-piece-n promotion-piece" />
-              </li>
-              <li class="ui-state-default">
-                <span class="piece-name">b</span
-                ><img class="promotion-piece-b promotion-piece" />
-              </li>
-            </ol>
-          </div>
-          <div style="text-align: center">
-            <button class="game ui black button" id="startPlay">
-              Start Play
-            </button>
-            <button class="game ui black button" id="arrange">Arrange</button>
-            <button
-              class="game ui black button"
-              id="clearEditor"
-              style="display: none"
-            >
-              Clear Board
-            </button>
-            <!-- <button class="game ui black button" id="startEditor">
+            <div id="boardEditorGame" style="display: none">
+              <div
+                id="boardEditor"
+                style="
+                  width: 60vh;
+                  margin: auto;
+                  margin-top: 10px;
+                  margin-bottom: 10px;
+                "
+              >
+                <div id="dialog-4" title="Boomerang Move">
+                  <p style="margin: 12px">Do you want to move back ?</p>
+                </div>
+              </div>
+              <div id="promotion-dialog">
+                <ol id="promote-to">
+                  <li class="ui-state-default">
+                    <span class="piece-name">q</span
+                    ><img class="promotion-piece-q promotion-piece" />
+                  </li>
+                  <li class="ui-state-default">
+                    <span class="piece-name">r</span
+                    ><img class="promotion-piece-r promotion-piece" />
+                  </li>
+                  <li class="ui-state-default">
+                    <span class="piece-name">n</span
+                    ><img class="promotion-piece-n promotion-piece" />
+                  </li>
+                  <li class="ui-state-default">
+                    <span class="piece-name">b</span
+                    ><img class="promotion-piece-b promotion-piece" />
+                  </li>
+                </ol>
+              </div>
+              <div style="text-align: center">
+                <button class="game ui black button" id="startPlay">
+                  Start Play
+                </button>
+                <button class="game ui black button" id="arrange">
+                  Arrange
+                </button>
+                <button
+                  class="game ui black button"
+                  id="clearEditor"
+                  style="display: none"
+                >
+                  Clear Board
+                </button>
+                <!-- <button class="game ui black button" id="startEditor">
               Start Board
             </button> -->
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 10px" class="column">
+            <div class="ui two column doubling stackable grid container">
+              <div class="column">
+                <h5 class="ui center aligned header">White</h5>
+                <table id="whiteMoves"></table>
+              </div>
+              <div class="column">
+                <h5 class="ui center aligned header">Black</h5>
+                <table id="blackMoves"></table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
