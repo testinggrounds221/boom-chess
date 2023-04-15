@@ -782,14 +782,21 @@ function addMoveToHistory(moveFen) {
 	let td = document.createElement("td")
 	const rowNum = moveTable.rows.length
 	td.innerText = `m${currTurn}-${rowNum}`
-	td.addEventListener('click', () => { previewFen(moveFen, rowNum, currTurn) })
-	td.style = "cursor:pointer"
+	console.log(editorBoard.orientation(), currTurn)
+	if (editorBoard.orientation()[0] === currTurn) {
+		td.addEventListener('click', () => { previewFen(moveFen, rowNum, currTurn) })
+		td.style = "cursor:pointer"
+	}
 	tr.appendChild(td)
 	tr.id = `m${currTurn}-${rowNum}`
 	moveTable.appendChild(tr)
 }
 
 function previewFen(moveFen, rowNum, turn) {
+	if (!(editorGame.turn() == editorBoard.orientation()[0])) return
+
+	console.log(editorGame.turn(), editorBoard.orientation()[0])
+	console.log(typeof (editorGame.turn()), typeof (editorBoard.orientation()[0]))
 	editorGame.load(moveFen)
 	editorBoard.position(moveFen)
 	changeFen = { moveFen, rowNum, turn }
@@ -805,10 +812,14 @@ function setBoardAndGame({ moveFen, rowNum, turn }) {
 	const blackTable = document.getElementById("blackMoves")
 
 	const maxLenW = whiteTable.rows.length
-	if (turn === 'w') rowNum++
+	const maxLenB = blackTable.rows.length
+
 	for (let i = rowNum; i < maxLenW; i++) {
-		document.getElementById(`mw-${i}`).remove()
 		document.getElementById(`mb-${i}`).remove()
+	}
+
+	for (let i = rowNum; i < maxLenB; i++) {
+		document.getElementById(`mw-${i}`).remove()
 	}
 
 	// const maxLenB = blackTable.rows.length
