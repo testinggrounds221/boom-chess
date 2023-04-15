@@ -81,51 +81,66 @@
       </div>
       <!-- /Input Form -->
       <div>
-        <div id="boardEditorGame">
-          <div
-            id="boardEditor"
-            style="
-              width: 60vh;
-              margin: auto;
-              margin-top: 10px;
-              margin-bottom: 10px;
-            "
-          >
-            <div id="dialog-4" title="Boomerang Move">
-              <p style="margin: 12px">Do you want to move back ?</p>
+        <div class="ui two column doubling stackable grid container">
+          <div id="boardEditorGame" class="column">
+            <div
+              id="boardEditor"
+              style="
+                width: 60vh;
+                margin: auto;
+                margin-top: 10px;
+                margin-bottom: 10px;
+              "
+            >
+              <div id="dialog-4" title="Boomerang Move">
+                <p style="margin: 12px">Do you want to move back ?</p>
+              </div>
+            </div>
+            <div id="promotion-dialog">
+              <ol id="promote-to">
+                <li class="ui-state-default">
+                  <span class="piece-name">q</span
+                  ><img class="promotion-piece-q promotion-piece" />
+                </li>
+                <li class="ui-state-default">
+                  <span class="piece-name">r</span
+                  ><img class="promotion-piece-r promotion-piece" />
+                </li>
+                <li class="ui-state-default">
+                  <span class="piece-name">n</span
+                  ><img class="promotion-piece-n promotion-piece" />
+                </li>
+                <li class="ui-state-default">
+                  <span class="piece-name">b</span
+                  ><img class="promotion-piece-b promotion-piece" />
+                </li>
+              </ol>
+            </div>
+            <div
+              style="text-align: center; margin-bottom: 20px; display: none"
+              id="saveGame"
+            >
+              <a href="/" class="ui button black" style="width: 300px"
+                >Save Game</a
+              >
             </div>
           </div>
-          <div id="promotion-dialog">
-            <ol id="promote-to">
-              <li class="ui-state-default">
-                <span class="piece-name">q</span
-                ><img class="promotion-piece-q promotion-piece" />
-              </li>
-              <li class="ui-state-default">
-                <span class="piece-name">r</span
-                ><img class="promotion-piece-r promotion-piece" />
-              </li>
-              <li class="ui-state-default">
-                <span class="piece-name">n</span
-                ><img class="promotion-piece-n promotion-piece" />
-              </li>
-              <li class="ui-state-default">
-                <span class="piece-name">b</span
-                ><img class="promotion-piece-b promotion-piece" />
-              </li>
-            </ol>
-          </div>
-          <div
-            style="text-align: center; margin-bottom: 20px; display: none"
-            id="saveGame"
-          >
-            <a href="/" class="ui button black" style="width: 300px"
-              >Save Game</a
-            >
+          <div style="margin-top: 10px" class="column">
+            <div class="ui two column doubling stackable grid container">
+              <div class="column">
+                <h5 class="ui center aligned header">White</h5>
+                <table id="whiteMoves"></table>
+              </div>
+              <div class="column">
+                <h5 class="ui center aligned header">Black</h5>
+                <table id="blackMoves"></table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
     <div id="trn" style="font-size: x-large; display: none">TURN</div>
 
     <!-- <script

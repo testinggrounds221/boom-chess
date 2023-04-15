@@ -29,6 +29,8 @@ let playWithComp = true
 let loadGame = true
 
 let loadGameFen = null
+let isChangeFen = false
+let changeFen = {} // Used to load Previous Configuration of same game
 setBoomAllowed()
 setPlayWithComp()
 setLoadGame()
@@ -82,8 +84,6 @@ function setupGameBoard(orientation) {
 	}
 	editorBoard = Chessboard('boardEditor', configEditor);
 	addEventListeners()
-	console.log(orientation,)
-
 	if (orientation === 'black' && editorGame.turn() == 'w') makeRandomMoveEditor()
 	if (orientation === 'white' && editorGame.turn() == 'b') makeRandomMoveEditor()
 }
@@ -120,7 +120,7 @@ function onDropEditor(source, target) {
 		return onClickSquare(source)
 	currentSource = null
 	// see if the move is legal
-
+	if (isChangeFen) setBoardAndGame(changeFen)
 	var move = editorGame.move({
 		from: source,
 		to: target,
@@ -135,7 +135,6 @@ function onDropEditor(source, target) {
 	let validMovesOfPieces = editorGame.moves({ verbose: true, legal: false })
 	for (let i = 0; i < validMovesOfPieces.length; i++) {
 		if (validMovesOfPieces[i].from === source && validMovesOfPieces[i].to === target) {
-			console.log(validMovesOfPieces[i].from)
 			fun = 1;
 			break;
 		}
@@ -284,7 +283,6 @@ $("#promote-to").selectable({
 
 function moveBack(move) {
 	let currentFen = editorGame.fen()
-	console.log('Move Me to my old position')
 	editorGame.load(currentFen)
 	editorGame.put({
 		type: move.piece,
@@ -339,16 +337,12 @@ function moveBack(move) {
 function moveIllegal(source, target) {
 	if (!editorGame.get(target)) return
 	let currentFen = editorGame.fen()
-	console.log(source, target)
 	var custommove = editorGame.get(source);
 	editorGame.load(currentFen)
-	console.log(editorGame.put({ type: custommove.type, color: custommove.color }, target))
+	editorGame.put({ type: custommove.type, color: custommove.color }, target)
 	editorGame.remove(target)
 	let isCheck = null
 	let eg = editorGame.fen()
-	console.log(editorGame.fen())
-	console.log(editorGame.in_check())
-
 	if (editorGame.turn() === 'w') {
 		let myArray = eg.split(" ");
 		myArray[1] = "b";
@@ -359,10 +353,7 @@ function moveIllegal(source, target) {
 		myArray[1] = "w";
 		isCheck = myArray.join(" ");
 	}
-	console.log("Load Check")
 	editorGame.load(isCheck)
-	console.log(editorGame.in_check())
-	console.log(editorGame.fen())
 	editorBoard.position(isCheck, false);
 
 	changeSquareColorAfterMove(source, target)
@@ -375,6 +366,53 @@ function changeSquareColorAfterMove(source, target) {
 		.removeClass('highlight-to')
 	boardJqry.find('.square-' + source).addClass('highlight-from')
 	boardJqry.find('.square-' + target).addClass('highlight-to')
+}
+
+//Move Table Functions
+function addMove(moveFen) {
+	let moveTable = null
+	const currTurn = editorGame.turn()
+	if (currTurn === 'b')
+		moveTable = document.getElementById("whiteMoves")
+	else moveTable = document.getElementById("blackMoves")
+
+	let tr = document.createElement("tr")
+	let td = document.createElement("td")
+	const rowNum = moveTable.rows.length
+	td.innerText = `m${currTurn}-${rowNum}`
+	td.addEventListener('click', () => { previewFen(moveFen, rowNum, currTurn) })
+	td.style = "cursor:pointer"
+	tr.appendChild(td)
+	tr.id = `m${currTurn}-${rowNum}`
+	moveTable.appendChild(tr)
+}
+
+function previewFen(moveFen, rowNum, turn) {
+	editorGame.load(moveFen)
+	editorBoard.position(moveFen)
+	changeFen = { moveFen, rowNum, turn }
+	isChangeFen = true
+}
+
+function setBoardAndGame({ moveFen, rowNum, turn }) {
+	isChangeFen = false
+	editorGame.load(moveFen)
+	editorBoard.position(moveFen)
+	const whiteTable = document.getElementById("whiteMoves")
+	const blackTable = document.getElementById("blackMoves")
+
+	const maxLenW = whiteTable.rows.length
+	if (turn === 'w') rowNum++
+	for (let i = rowNum; i < maxLenW; i++) {
+		document.getElementById(`mw-${i}`).remove()
+		document.getElementById(`mb-${i}`).remove()
+	}
+
+	// const maxLenB = blackTable.rows.length
+	// for (let i = rowNum + 1; i < maxLenB; i++) {
+	// 	document.getElementById(`m${turn}-${i}`).remove()
+	// }
+	if (playWithComp) if (editorGame.turn() === 'b') makeRandomMoveEditor()
 }
 
 //Checking Functions
@@ -395,10 +433,8 @@ function isBoomCheckMate(fen) {
 	let mvs = c.moves({ verbose: true, legal: false })
 	for (let i = 0; i < mvs.length; i++) {
 		const mv = mvs[i];
-		console.log(mv.flags)
-
 		if (mv.flags === 'c' && !isCheckAfterRemovePiece(fen, mv.to)) {
-			console.log(mv) // ! DO NOT DLT. Keep This Console Log for moves
+			// console.log(mv) // ! DO NOT DLT. Keep This Console Log for moves
 			f++;
 		}
 	}
@@ -407,7 +443,6 @@ function isBoomCheckMate(fen) {
 
 function isCheckForAlterTurnAftermove(fen, source, target) {
 	let isCheckGame = new Chess()
-	console.log(fen, source, target)
 	let myArray = fen.split(" ");
 	if (myArray[1] == "b")
 		myArray[1] = "w";
@@ -427,7 +462,6 @@ function isCheckForAlterTurnAftermove(fen, source, target) {
 
 function isCheckForTurnAftermove(fen, source, target) {
 	let isCheckGame = new Chess()
-	console.log(fen, source, target)
 	isCheckGame.load(fen)
 	let sourcePiece = isCheckGame.get(source)
 	isCheckGame.remove(source)
@@ -439,7 +473,12 @@ function isCheckForTurnAftermove(fen, source, target) {
 }
 
 function makeRandomMoveEditor() {
-	if (playWithComp) setTimeout(makeRandomMove, 500);
+	editorBoard.position(editorGame.fen())
+	addMove(editorGame.fen())
+	if (playWithComp) {
+		setTimeout(() => { makeRandomMove(); addMove(editorGame.fen()) }, 500);
+
+	}
 }
 
 // Misc Functions
@@ -519,14 +558,13 @@ function addEventListeners() {
 	editorGame.SQUARES.forEach(
 		(sq) => boardJqry.find('.square-' + sq).bind('click',
 			() => {
-				console.log(sq)
 				onClickSquare(sq)
 			}
 		))
 }
 
 function currHighlight(sq) {
-	console.log(boardJqry.find('.square-' + sq).addClass('highlight-curr'))
+	boardJqry.find('.square-' + sq).addClass('highlight-curr')
 }
 
 function removeCurrHighlight() {
@@ -534,10 +572,6 @@ function removeCurrHighlight() {
 }
 
 function onClickSquare(sq) {
-	console.log(sq)
-	console.log(editorGame.get(sq))
-	console.log(editorBoard.orientation())
-
 	if (currentSource === null) {
 		if (editorGame.get(sq) === null) return
 		if (editorBoard.orientation().startsWith(editorGame.get(sq).color)) {

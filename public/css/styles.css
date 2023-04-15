@@ -179,3 +179,14 @@ body {
 	border-radius: 5px;
 	float: left;
 }
+
+table{
+	width: 100%;
+}
+
+tr:nth-child(even) {
+	background-color: #f2f2f2;
+}
+tr {
+	text-align: center;
+}
