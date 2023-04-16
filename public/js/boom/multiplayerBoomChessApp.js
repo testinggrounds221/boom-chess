@@ -337,6 +337,7 @@ socket.on('DisplayBoard', (fenString, mvSq, userId) => {
 		}
 		document.getElementById('joinFormDiv').style.display = "none";
 		document.querySelector('#chessGame').style.display = null
+		document.querySelector('#moveTable').style.display = null
 		ChatEl.style.display = null
 		document.getElementById('statusPGN').style.display = null
 	}
@@ -793,6 +794,11 @@ function addMoveToHistory(moveFen) {
 }
 
 function previewFen(moveFen, rowNum, turn) {
+	currentSource = null
+	boardJqry.find('.' + squareClass)
+		.removeClass('highlight-from')
+	boardJqry.find('.' + squareClass)
+		.removeClass('highlight-to')
 	if (!(editorGame.turn() == editorBoard.orientation()[0])) return
 
 	console.log(editorGame.turn(), editorBoard.orientation()[0])
@@ -814,16 +820,34 @@ function setBoardAndGame({ moveFen, rowNum, turn }) {
 	const maxLenW = whiteTable.rows.length
 	const maxLenB = blackTable.rows.length
 
-	for (let i = rowNum; i < maxLenW; i++) {
-		document.getElementById(`mb-${i}`).remove()
-	}
-
-	for (let i = rowNum; i < maxLenB; i++) {
-		document.getElementById(`mw-${i}`).remove()
-	}
-
-	// const maxLenB = blackTable.rows.length
-	// for (let i = rowNum + 1; i < maxLenB; i++) {
-	// 	document.getElementById(`m${turn}-${i}`).remove()
+	// for (let i = rowNum; i < maxLenW; i++) {
+	// 	document.getElementById(`mb-${i}`).remove()
 	// }
+
+	// for (let i = rowNum; i < maxLenB; i++) {
+	// 	document.getElementById(`mw-${i}`).remove()
+	// }
+	const removeID = (id) => {
+		let ele = document.getElementById(id)
+		if (ele) ele.remove()
+		else console.error(id + "Not found")
+	}
+
+
+	if (editorBoard.orientation()[0] === 'w') {
+		for (let i = rowNum; i < maxLenW; i++) { // DO NOT ADD 1. IT COMES FROM DISPLAY BOARD.
+			removeID(`mb-${i}`)
+		}
+		for (let i = rowNum; i < maxLenB; i++) {
+			removeID(`mw-${i}`)
+		}
+	}
+	else {
+		for (let i = rowNum + 1; i < maxLenW; i++) { // DO NOT ADD 1. IT COMES FROM DISPLAY BOARD.
+			removeID(`mb-${i}`)
+		}
+		for (let i = rowNum; i < maxLenB; i++) {
+			removeID(`mw-${i}`)
+		}
+	}
 }

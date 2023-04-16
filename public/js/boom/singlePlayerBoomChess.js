@@ -66,6 +66,7 @@ $(function () {
 function setupGameBoard(orientation) {
 	document.getElementById('gameMode').style.display = "none";
 	document.getElementById('saveGame').style.display = null;
+	document.getElementById('moveTable').style.display = null;
 	document.querySelector('#boardEditorGame').style.display = null;
 
 	configEditor = {
