@@ -782,7 +782,7 @@ function addMoveToHistory(moveFen) {
 	let tr = document.createElement("tr")
 	let td = document.createElement("td")
 	const rowNum = moveTable.rows.length
-	td.innerText = `m${currTurn}-${rowNum}`
+	td.innerText = `Move ${rowNum + 1}`
 	console.log(editorBoard.orientation(), currTurn)
 	if (editorBoard.orientation()[0] === currTurn) {
 		td.addEventListener('click', () => { previewFen(moveFen, rowNum, currTurn) })

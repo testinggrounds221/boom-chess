@@ -380,7 +380,7 @@ function addMove(moveFen) {
 	let tr = document.createElement("tr")
 	let td = document.createElement("td")
 	const rowNum = moveTable.rows.length
-	td.innerText = `m${currTurn}-${rowNum}`
+	td.innerText = `Move ${rowNum + 1}`
 	td.addEventListener('click', () => { previewFen(moveFen, rowNum, currTurn) })
 	td.style = "cursor:pointer"
 	tr.appendChild(td)
