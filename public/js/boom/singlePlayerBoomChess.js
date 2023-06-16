@@ -24,6 +24,8 @@ var squareToHighlight = null
 var squareClass = 'square-55d63'
 let currentSource = null
 
+let currentPgn = null
+
 let isBoomAllowed = true
 let playWithComp = true
 let loadGame = true
@@ -128,6 +130,8 @@ function onDropEditor(source, target) {
 		promotion: 'q' // NOTE: always promote to a queen for example simplicity
 	})
 
+	if (move) currentPgn = move["san"]
+	console.log(currentPgn)
 
 	document.getElementById('trn').style.display = null;
 	document.getElementById('trn').innerHTML = editorGame.turn();
@@ -342,6 +346,7 @@ function moveIllegal(source, target) {
 	editorGame.load(currentFen)
 	editorGame.put({ type: custommove.type, color: custommove.color }, target)
 	editorGame.remove(target)
+
 	let isCheck = null
 	let eg = editorGame.fen()
 	if (editorGame.turn() === 'w') {
@@ -380,7 +385,8 @@ function addMove(moveFen) {
 	let tr = document.createElement("tr")
 	let td = document.createElement("td")
 	const rowNum = moveTable.rows.length
-	td.innerText = `Move ${rowNum + 1}`
+	// td.innerText = `Move ${rowNum + 1}`
+	td.innerText = currentPgn
 	td.addEventListener('click', () => { previewFen(moveFen, rowNum, currTurn) })
 	td.style = "cursor:pointer"
 	tr.appendChild(td)
@@ -497,6 +503,7 @@ function makeRandomMove() {
 	}
 	var randomIdx = Math.floor(Math.random() * possibleMoves.length)
 	let move = editorGame.move(possibleMoves[randomIdx]);
+	currentPgn = move['san']
 	// myAudioEl.play();
 	editorTurnt = 1 - editorTurnt;
 	editorBoard.position(editorGame.fen());

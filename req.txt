@@ -1,0 +1,37 @@
+Can u add the following feature to the boomerang chess:
+
+Normal game syntax:
+
+e4 e5
+Qh5 Be7
+Qxf7 Kf8
+
+Boomerang game syntax:
+
+e4 e5
+Qh5 Be7
+Qxf7< Kf8
+
+Here the symbol "<" indicates a boomerang move.
+This syntax is easy to use by a human also for recording a boomerang chess game.
+
+The game shud have the following features:
+
+1) Ability to save the game G1 sequence in the above syntax (using the "<" symbol for boomerang moves)
+
+2) Ability to open the saved game sequence G1 and view the game move by move.
+
+3) Ability to save a particular game "position" Pos1.
+
+4) Ability to open a saved position pos1 and continue playing a game.
+
+We need to find a similar manual notation for recording Xray chess and Pool Chess moves , which is useable both by humans and computers.
+
+Let me know ur thoughts.
+
+c.move(c.moves()[Math.floor(Math.random() * c.moves().length)]);
+c.move(c.moves()[Math.floor(Math.random() * c.moves().length)])["san"]
+
+to do :
+for all illegal moves
+for boom move
