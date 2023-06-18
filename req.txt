@@ -35,3 +35,8 @@ c.move(c.moves()[Math.floor(Math.random() * c.moves().length)])["san"]
 to do :
 for all illegal moves
 for boom move
+
+null move : rnbqk1n1/2ppbppr/p3p2p/1p2K3/4P3/8/PPPP1PPP/RNBQ1BNR w q - 2 9
+
+notation:
+'1. g4 a5 2. d4 Nc6 3. e4 f6 4. f4 a4 5. c4 Rb8 6. b4 h6 7. h4 b5 8. Bd3 Nxb4 9. Nc3 Rb6 10. Qe2 Rd6'

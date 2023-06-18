@@ -48,6 +48,7 @@ $(function () {
 				moveBack($(this).data('move'))
 				$(this).dialog("close");
 				waitForBoom = false
+				currentPgn += "<"
 				makeRandomMoveEditor()
 			},
 			No: function () {
@@ -150,12 +151,14 @@ function onDropEditor(source, target) {
 		console.log("Move is null")
 		if (editorGame.get(target) && !isCheckAfterRemovePiece(currentFen, target)
 			&& fun === 1) {
+			currentPgn = getSAN(source, target)
 			moveIllegal(source, target);
 			makeRandomMoveEditor()
 		}
 		else if (editorGame.in_checkmate() || editorGame.in_check()) {
 			console.log('Check Mate')
 			if (editorGame.get(target) && !isCheckAfterRemovePiece(currentFen, target) && fun === 1) {
+				currentPgn = getSAN(source, target)
 				moveIllegal(source, target);
 				makeRandomMoveEditor()
 			} else {
@@ -174,6 +177,7 @@ function onDropEditor(source, target) {
 		waitForBoom = true
 		editorGame.undo();
 		if (!isCheckAfterRemovePiece(editorGame.fen(), move.to) && isBoomAllowed) {
+			currentPgn = getSAN(source, target)
 			var move = editorGame.move({
 				from: source,
 				to: target,
@@ -181,6 +185,7 @@ function onDropEditor(source, target) {
 			})
 			$("#dialog-4").data('move', move).dialog("open");
 		} else {
+			currentPgn = getSAN(source, target)
 			var move = editorGame.move({
 				from: source,
 				to: target,
@@ -215,7 +220,8 @@ function onDropEditor(source, target) {
 					draggable: false,
 					close: () => {
 						move.promotion = promote_to
-						editorGame.move(move)
+						let promoMove = editorGame.move(move)
+						if (promoMove) currentPgn = move["san"]
 						handleNormalCheckMate()
 						makeRandomMoveEditor()
 					},
@@ -259,6 +265,11 @@ function alertCheckMate() {
 			alert('White Wins')
 		return
 	}
+}
+
+function getSAN(source, target) {
+	if (editorGame.get(target)) editorGame.get(source).type.toUpperCase() + "x" + target
+	return editorGame.get(source).type.toUpperCase() + target
 }
 
 function onMoveEnd() {
@@ -387,6 +398,7 @@ function addMove(moveFen) {
 	const rowNum = moveTable.rows.length
 	// td.innerText = `Move ${rowNum + 1}`
 	td.innerText = currentPgn
+	currentPgn = null
 	td.addEventListener('click', () => { previewFen(moveFen, rowNum, currTurn) })
 	td.style = "cursor:pointer"
 	tr.appendChild(td)
