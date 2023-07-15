@@ -92,11 +92,29 @@
             <label>Play with Computer</label>
           </div>
         </div>
-        <div style="text-align: center" id="playWtCmDiv">
+        <div style="text-align: center">
           <div class="ui checkbox">
-            <input type="checkbox" name="example" id="loadGame" />
+            <input
+              type="checkbox"
+              name="example"
+              id="loadGame"
+              checked="false"
+            />
             <label>Load Game </label>
           </div>
+          <fieldset style="border: 0; display: none" id="loadGameFieldSet">
+            <legend>Select a Load Game Configuration :</legend>
+
+            <div>
+              <input type="radio" id="isLoadFEN" name="drone" checked />
+              <label for="huey">Load FEN</label>
+            </div>
+
+            <div>
+              <input type="radio" id="isLoadSAN" name="drone" />
+              <label for="dewey">Load SAN</label>
+            </div>
+          </fieldset>
         </div>
       </div>
 

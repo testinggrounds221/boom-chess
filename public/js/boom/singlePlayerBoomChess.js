@@ -574,10 +574,29 @@ function setLoadGame() {
 	if (urlParams.get('loadGame') === 'false') loadGame = false
 	else {
 		loadGame = true
-		let pgn = prompt('Enter State of Game : ');
+		switch (urlParams.get('loadGameType')) {
+			case "fen":
+				setFENGame()
+				break;
+			case "san":
+				setSANGame()
+				break;
+			case "none":
+				console.error("Load Game true but no config (none)")
+				break;
+			default:
+				console.error("Load Game true but no config")
+				break;
+		}
+	}
+}
 
-		let loadPGNGame = new Chess()
-		let sp = pgn.split(" ")
+function setSANGame() {
+	let pgn = prompt('Enter SAN of Game : ');
+
+	let loadPGNGame = new Chess()
+	let sp = pgn.split(" ")
+	try {
 		for (let i = 0; i < sp.length; i++) {
 			if (i % 3 == 0) continue
 			else {
@@ -597,7 +616,12 @@ function setLoadGame() {
 		}
 		console.log(loadPGNGame.fen())
 		loadGameFen = loadPGNGame.fen()
+		alert("Loaded Game! Choose Color");
+	} catch (error) {
+		alert("Enter Valid SAN")
 	}
+
+
 }
 
 function addMoveFromSAN(moveFen, currCustomTurn, currentCustomPgn) {
@@ -618,19 +642,12 @@ function addMoveFromSAN(moveFen, currCustomTurn, currentCustomPgn) {
 	moveTable.appendChild(tr)
 }
 
-function setLoadGame1() {
-	const urlParams = new URLSearchParams(window.location.search);
-	if (!urlParams.get('loadGame')) { console.error("NO Load Game Instructions"); loadGame = false; return }
-	if (urlParams.get('loadGame') === 'false') loadGame = false
-	else {
-		loadGame = true
-		let cusFen = prompt('Enter State of Game : ');
-
-		var temp = new Chess()
-		if (cusFen && !temp.load(cusFen)) { alert("Enter Valid State !"); return }
-		loadGameFen = cusFen
-		alert("Loaded Game! Choose Color");
-	}
+function setFENGame() {
+	let cusFen = prompt('Enter FEN of Game : ');
+	var temp = new Chess()
+	if (cusFen && !temp.load(cusFen)) { alert("Enter Valid State !"); return }
+	loadGameFen = cusFen
+	alert("Loaded Game! Choose Color");
 }
 
 function handleNormalCheckMate() {

@@ -13,6 +13,10 @@ const ChatEl = document.querySelector('#chat')
 const sendButtonEl = document.querySelector('#send')
 const chatContentEl = document.getElementById('chatContent')
 const isBoomAllowedEle = document.getElementById('isBoomAllowed');
+const loadGameFieldSetEle = document.getElementById('loadGameFieldSet');
+const loadGame = document.getElementById('loadGame');
+loadGame.checked = false
+loadGameFieldSetEle.style.display = loadGame.checked ? null : "none"
 
 var config = {};
 var board = null;
@@ -102,19 +106,24 @@ singlePlayerEl.addEventListener('click', (e) => {
 	e.preventDefault();
 	let isBoomAllowed = document.querySelector('#isBoomAllowed').checked
 	let playWithComp = document.querySelector('#playWithComp').checked
-	let loadGame = document.querySelector('#loadGame').checked
+	let loadGameBool = document.querySelector('#loadGame').checked
+	let loadGameType = "none"
+	if (loadGameBool) {
+		if (document.querySelector('#isLoadFEN').checked) loadGameType = "fen"
+		if (document.querySelector('#isLoadSAN').checked) loadGameType = "san"
+	}
 
 	if (isBoomAllowed)
-		location.href = `singlePlayerBoomChess.html?isBoomAllowed=${isBoomAllowed}&playWithComp=${playWithComp}&loadGame=${loadGame}`
+		location.href = `singlePlayerBoomChess.html?isBoomAllowed=${isBoomAllowed}&playWithComp=${playWithComp}&loadGame=${loadGameBool}&loadGameType=${loadGameType}`
 	else
-		location.href = `singlePlayerBoomChess.html?isBoomAllowed=false&playWithComp=false&loadGame=${loadGame}`
+		location.href = `singlePlayerBoomChess.html?isBoomAllowed=false&playWithComp=false&loadGame=${loadGameBool}&loadGameType=${loadGameType}`
 
 
 })
 
 multiPlayerEl.addEventListener('click', (e) => {
 	e.preventDefault();
-	console.log("Heyyy")
+	// console.log("Heyyy")
 	let loadGame = document.querySelector('#loadGame').checked
 	location.href = `multiPlayerBoomChess.html?loadGame=${loadGame}`
 })
@@ -127,6 +136,16 @@ isBoomAllowedEle.addEventListener('change', () => {
 		playWithCompEle.style.display = 'none'
 
 })
+
+loadGame.addEventListener('change', () => {
+	loadGameFieldSetEle.style.display = loadGame.checked ? null : "none"
+})
+
+function handleLGCheck(cb) {
+	display("Clicked, new value = " + cb.checked);
+	if (cb.checked) loadGameFieldSetEle.style.display = null
+	else loadGameFieldSetEle.style.display = "none"
+}
 //Connection will be established after webpage is refreshed
 const socket = io()
 
@@ -147,7 +166,7 @@ socket.on('updateEvent', ({ status, fen, pgn }) => {
 })
 
 socket.on('printing', (fen) => {
-	console.log(fen)
+	// console.log(fen)
 })
 
 //Catch Display event
