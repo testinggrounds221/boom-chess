@@ -2,6 +2,7 @@
 const whiteColor = document.getElementById('white');
 const blackColor = document.getElementById('black');
 const saveGame = document.getElementById('saveGame');
+const savePGN = document.getElementById('savePGN');
 const myAudioEl = document.getElementById('myAudio');
 
 
@@ -69,6 +70,7 @@ $(function () {
 function setupGameBoard(orientation) {
 	document.getElementById('gameMode').style.display = "none";
 	document.getElementById('saveGame').style.display = null;
+	document.getElementById('savePGN').style.display = null;
 	document.getElementById('moveTable').style.display = null;
 	document.querySelector('#boardEditorGame').style.display = null;
 
@@ -104,7 +106,7 @@ blackColor.addEventListener('click', (e) => {
 })
 
 saveGame.addEventListener('click', saveGameListener)
-
+savePGN.addEventListener('click', savePGNListener)
 var validMoves = []
 // Board Change Functions
 function onSnapEndEditor(params) {
@@ -177,7 +179,6 @@ function onDropEditor(source, target) {
 		waitForBoom = true
 		editorGame.undo();
 		if (!isCheckAfterRemovePiece(editorGame.fen(), move.to) && isBoomAllowed) {
-			currentPgn = getSAN(source, target)
 			var move = editorGame.move({
 				from: source,
 				to: target,
@@ -505,8 +506,31 @@ function saveGameListener(e) {
 	e.preventDefault();
 	var copyText = editorGame.fen();
 	navigator.clipboard.writeText(copyText);
-	alert("Copied the text: " + copyText + " to clipboard");
+	alert("Copied the FEN : " + copyText + " to clipboard");
 }
+
+function savePGNListener(e) {
+	e.preventDefault();
+	let wt = document.getElementById("whiteMoves")
+	let bt = document.getElementById("blackMoves")
+
+	let wr = wt.rows
+	let br = bt.rows
+
+	let wc = wr.length
+	let bc = br.length
+
+	let pgnString = ""
+	for (let wp = 0, bp = 0; wp < wc, bp < bc; wp++, bp++) {
+		let w = wr[wp].children[0].innerText
+		let b = br[bp].children[0].innerText
+		pgnString += (wp + 1 + ". " + w + " " + b + " ")
+	}
+	pgnString = pgnString.trim()
+	navigator.clipboard.writeText(pgnString);
+	alert("Copied the PGN : " + pgnString + " to clipboard")
+}
+
 function makeRandomMove() {
 	var possibleMoves = editorGame.moves()
 	// editorGame over
@@ -545,6 +569,56 @@ function setPlayWithComp() {
 }
 
 function setLoadGame() {
+	const urlParams = new URLSearchParams(window.location.search);
+	if (!urlParams.get('loadGame')) { console.error("NO Load Game Instructions"); loadGame = false; return }
+	if (urlParams.get('loadGame') === 'false') loadGame = false
+	else {
+		loadGame = true
+		let pgn = prompt('Enter State of Game : ');
+
+		let loadPGNGame = new Chess()
+		let sp = pgn.split(" ")
+		for (let i = 0; i < sp.length; i++) {
+			if (i % 3 == 0) continue
+			else {
+				let currentPgn = sp[i]
+				if (sp[i].includes("<")) {
+					sp[i] = sp[i].replace("<", "")
+					let c = new Chess(loadPGNGame.fen())
+					let m = c.move(sp[i], { "verbose": true })
+					c.put({ type: m.piece, color: m.color }, m.from)
+					c.remove(m.to)
+					loadPGNGame.load(c.fen())
+				} else {
+					loadPGNGame.move(sp[i])
+				}
+				addMoveFromSAN(loadPGNGame.fen(), loadPGNGame.turn(), currentPgn)
+			}
+		}
+		console.log(loadPGNGame.fen())
+		loadGameFen = loadPGNGame.fen()
+	}
+}
+
+function addMoveFromSAN(moveFen, currCustomTurn, currentCustomPgn) {
+	let moveTable = null
+	if (currCustomTurn === 'b')
+		moveTable = document.getElementById("whiteMoves")
+	else moveTable = document.getElementById("blackMoves")
+
+	let tr = document.createElement("tr")
+	let td = document.createElement("td")
+	const rowNum = moveTable.rows.length
+	// td.innerText = `Move ${rowNum + 1}`
+	td.innerText = currentCustomPgn
+	td.addEventListener('click', () => { previewFen(moveFen, rowNum, currCustomTurn) })
+	td.style = "cursor:pointer"
+	tr.appendChild(td)
+	tr.id = `m${currCustomTurn}-${rowNum}`
+	moveTable.appendChild(tr)
+}
+
+function setLoadGame1() {
 	const urlParams = new URLSearchParams(window.location.search);
 	if (!urlParams.get('loadGame')) { console.error("NO Load Game Instructions"); loadGame = false; return }
 	if (urlParams.get('loadGame') === 'false') loadGame = false
