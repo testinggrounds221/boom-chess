@@ -125,7 +125,7 @@ multiPlayerEl.addEventListener('click', (e) => {
 	e.preventDefault();
 	// console.log("Heyyy")
 	let loadGame = document.querySelector('#loadGame').checked
-	location.href = `multiPlayerBoomChess.html?loadGame=${loadGame}`
+	location.href = `multiplayerBoomChess.html?loadGame=${loadGame}`
 })
 
 isBoomAllowedEle.addEventListener('change', () => {
